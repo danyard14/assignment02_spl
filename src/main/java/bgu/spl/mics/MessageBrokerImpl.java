@@ -10,17 +10,22 @@ import java.util.Map;
  */
 public class MessageBrokerImpl implements MessageBroker {
 
-	private static MessageBroker instance = new MessageBrokerImpl();
-
-	private Map<Integer,Integer> map = new HashMap<>();
+	private static class MessageBrokerHolder{
+		private static MessageBroker instance = new MessageBrokerImpl();
+	}
 
 	/**
 	 * Retrieves the single instance of this class.
 	 */
 	public static MessageBroker getInstance() {
-
-		return instance;
+		return MessageBrokerHolder.instance;
 	}
+
+	private MessageBrokerImpl(){
+		//init all fields.
+	}
+
+
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, Subscriber m) {

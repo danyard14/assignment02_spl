@@ -1,4 +1,5 @@
 package bgu.spl.mics.application.passiveObjects;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +62,17 @@ public class Squad {
 	 * @param time   milliseconds to sleep
 	 */
 	public void sendAgents(List<String> serials, int time){
-		// TODO Implement this
+		for(String serial: serials ){
+			agents.get(serial).acquire();
+		}
+		try {
+			Thread.currentThread().sleep(time);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		for(String serial: serials ){
+			agents.get(serial).release();
+		}
 	}
 
 	/**
@@ -92,8 +103,13 @@ public class Squad {
      * @return a list of the names of the agents with the specified serials.
      */
     public List<String> getAgentsNames(List<String> serials){
-        // TODO Implement this
-	    return null;
+		ArrayList<String> toReturn = new ArrayList<>();
+    	for(String serial: serials){
+    		if(agents.containsKey(serial)){
+				toReturn.add(agents.get(serial).getName());
+			}
+		}
+	    return toReturn;
     }
 
 }
