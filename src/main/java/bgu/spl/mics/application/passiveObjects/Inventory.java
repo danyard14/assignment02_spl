@@ -12,12 +12,16 @@ import java.util.List;
  */
 public class Inventory {
 	private List<String> gadgets;
+
+	private static class InventoryHolder {
+		private static Inventory instance = new Inventory();
+	}
+
 	/**
      * Retrieves the single instance of this class.
      */
 	public static Inventory getInstance() {
-		//TODO: Implement this
-		return null;
+		return InventoryHolder.instance;
 	}
 
 	/**
@@ -28,7 +32,9 @@ public class Inventory {
      * 						of the inventory.
      */
 	public void load (String[] inventory) {
-		//TODO: Implement this
+		for (String gadget : inventory) {
+			gadgets.add(gadget);
+		}
 	}
 	
 	/**
@@ -38,7 +44,9 @@ public class Inventory {
      * @return 	‘false’ if the gadget is missing, and ‘true’ otherwise
      */
 	public boolean getItem(String gadget){
-		//TODO: Implement this
+		if (!gadgets.contains(gadget))
+			return false;
+		gadgets.remove(gadget);
 		return true;
 	}
 

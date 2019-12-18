@@ -41,8 +41,8 @@ public class Squad {
 	 * 						of the squad.
 	 */
 	public void load (Agent[] agents) {
-		for(Agent agent: agents){
-			this.agents.put(agent.getSerialNumber(),agent);
+		for(Agent agent : agents){
+			this.agents.put(agent.getSerialNumber(), agent);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class Squad {
 	 * Releases agents.
 	 */
 	public void releaseAgents(List<String> serials){
-		for(String serial: serials){
+		for(String serial : serials){
 			if(this.agents.containsKey(serial)){
 				this.agents.get(serial).release();
 			}
