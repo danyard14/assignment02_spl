@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.subscribers;
 
 import bgu.spl.mics.Subscriber;
+import com.sun.nio.sctp.MessageInfo;
+
+import java.util.List;
 
 /**
  * A Publisher\Subscriber.
@@ -10,9 +13,11 @@ import bgu.spl.mics.Subscriber;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Intelligence extends Subscriber {
+	private List<MessageInfo> messageInfoList;
+	private int counter = 0;
 
 	public Intelligence() {
-		super("Change_This_Name");
+		super("Intelligence" );
 		// TODO Implement this
 	}
 
