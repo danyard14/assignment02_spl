@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Passive data-object representing a information about an agent in MI6.
@@ -10,14 +11,26 @@ import java.util.Map;
  */
 public class Squad {
 
+	//TODO: check: 1.maybe change map to synchronized map
+	//				2. maybe initialize map in the declaration.
+
+
 	private Map<String, Agent> agents;
+
+	private static class SquadHolder {
+		private static Squad instance = new Squad();
+	}
+
+	// initialization
+	private Squad(){
+		agents = new ConcurrentHashMap<>();
+	}
 
 	/**
 	 * Retrieves the single instance of this class.
 	 */
 	public static Squad getInstance() {
-		//TODO: Implement this
-		return null;
+		return SquadHolder.instance;
 	}
 
 	/**
@@ -27,14 +40,20 @@ public class Squad {
 	 * 						of the squad.
 	 */
 	public void load (Agent[] agents) {
-		// TODO Implement this
+		for(Agent agent: agents){
+			this.agents.put(agent.getSerialNumber(),agent);
+		}
 	}
 
 	/**
 	 * Releases agents.
 	 */
 	public void releaseAgents(List<String> serials){
-		// TODO Implement this
+		for(String serial: serials){
+			if(this.agents.containsKey(serial)){
+				this.agents.get(serial).release();
+			}
+		}
 	}
 
 	/**
@@ -51,8 +70,20 @@ public class Squad {
 	 * @return ‘false’ if an agent of serialNumber ‘serial’ is missing, and ‘true’ otherwise
 	 */
 	public boolean getAgents(List<String> serials){
-		// TODO Implement this
-		return false;
+		for(String serial: serials){
+			if(!this.agents.containsKey(serial)) {
+				return false;
+			}
+			while (!agents.get(serial).isAvailable()){
+				try {
+					Thread.currentThread().wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+			this.agents.get(serial).acquire();
+		}
+		return true;
 	}
 
     /**
