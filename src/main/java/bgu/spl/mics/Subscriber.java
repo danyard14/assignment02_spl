@@ -1,5 +1,5 @@
 package bgu.spl.mics;
-//try
+
 /**
  * The Subscriber is an abstract class that any subscriber in the system
  * must extend. The abstract Subscriber class is responsible to get and
