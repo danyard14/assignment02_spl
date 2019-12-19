@@ -50,7 +50,7 @@ public abstract class Subscriber extends RunnableSubPub {
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
         //TODO: implement this.
     }
-
+a
     /**
      * Subscribes to broadcast message of type {@code type} with the callback
      * {@code callback}. This means two things:
