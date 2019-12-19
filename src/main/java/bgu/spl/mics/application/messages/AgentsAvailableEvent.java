@@ -2,16 +2,17 @@ package bgu.spl.mics.application.messages;
 
 import bgu.spl.mics.application.passiveObjects.Result;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AgentsAvailableEvent extends Event<Result> {
-    private List<Result> agents;
+    private ArrayList<String> agents;
 
-    public List<Result> getAgents() {
+    public ArrayList<String> getAgents() {
         return agents;
     }
 
-    public void setAgents(List<Result> agents) {
+    public void setAgents(ArrayList<String> agents) {
         this.agents = agents;
     }
 }

@@ -5,13 +5,13 @@ import bgu.spl.mics.application.passiveObjects.Result;
 import java.util.List;
 
 public class GadgetAvailableEvent extends Event<Result> {
-    private List<String> gadgets;
+    private String gadget;
 
-    public List<String> getGadgets() {
-        return gadgets;
+    public String getGadget() {
+        return gadget;
     }
 
-    public void setGadgets(List<String> gadgets) {
-        this.gadgets = gadgets;
+    public void setGadgets(String gadget) {
+        this.gadget = gadget;
     }
 }

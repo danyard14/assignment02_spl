@@ -1,5 +1,8 @@
 package bgu.spl.mics;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The Subscriber is an abstract class that any subscriber in the system
  * must extend. The abstract Subscriber class is responsible to get and
@@ -17,6 +20,8 @@ package bgu.spl.mics;
  */
 public abstract class Subscriber extends RunnableSubPub {
     private boolean terminated = false;
+    private MessageBroker messageBrokerInstance;
+    private Map<Class, Callback> callbackMap;
 
     /**
      * @param name the Subscriber name (used mainly for debugging purposes -
@@ -24,6 +29,8 @@ public abstract class Subscriber extends RunnableSubPub {
      */
     public Subscriber(String name) {
         super(name);
+        messageBrokerInstance = MessageBrokerImpl.getInstance();
+        callbackMap = new HashMap<>();
     }
 
     /**
@@ -48,7 +55,10 @@ public abstract class Subscriber extends RunnableSubPub {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        //TODO: implement this.
+        if(!callbackMap.containsKey(type)) {
+            callbackMap.put(type, callback);
+            messageBrokerInstance.subscribeEvent(type, this);
+        }
     }
 
     /**
@@ -86,7 +96,7 @@ public abstract class Subscriber extends RunnableSubPub {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        //TODO: implement this.
+        messageBrokerInstance.complete(e, result);
     }
 
     /**
@@ -98,15 +108,20 @@ public abstract class Subscriber extends RunnableSubPub {
     }
 
     /**
-     * The entry point of the Subscriber. TODO: you must complete this code
+     * The entry point of the Subscriber.
      * otherwise you will end up in an infinite loop.
      */
     @Override
     public final void run() {
         initialize();
         while (!terminated) {
-            System.out.println("NOT IMPLEMENTED!!!"); //TODO: you should delete this line :)
+            try {
+               Message message = messageBrokerInstance.awaitMessage(this);
+               Callback callback = callbackMap.get(message.getClass()); //TODO: figure out if it gets inherited class or parent class.
+               callback.call(message);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-
 }

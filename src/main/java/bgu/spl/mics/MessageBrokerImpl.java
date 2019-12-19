@@ -60,13 +60,13 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		eventFutureMap.get(e).resolve(result);
+		Future future = eventFutureMap.get(e);
+		future.resolve(result);
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		// TODO Auto-generated method stub
-
 	}
 
 	
