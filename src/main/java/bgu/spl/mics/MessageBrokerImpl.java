@@ -1,7 +1,15 @@
 package bgu.spl.mics;
 
-import java.util.HashMap;
-import java.util.Map;
+import bgu.spl.mics.application.messages.AgentsAvailableEvent;
+import bgu.spl.mics.application.messages.GadgetAvailableEvent;
+import bgu.spl.mics.application.messages.MissionReceivedEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.passiveObjects.Result;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * The {@link MessageBrokerImpl class is the implementation of the MessageBroker interface.
@@ -9,6 +17,9 @@ import java.util.Map;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBrokerImpl implements MessageBroker {
+	private Map<Subscriber, Queue<Message>> subscribersMap; //TODO:change the message type
+	private Map<Object, ArrayList<Subscriber>> eventsMap;	//TODO:change field name
+	private Map<Message, Future> eventFutureMap;
 
 	private static class MessageBrokerHolder{
 		private static MessageBroker instance = new MessageBrokerImpl();
@@ -22,15 +33,23 @@ public class MessageBrokerImpl implements MessageBroker {
 	}
 
 	private MessageBrokerImpl(){
-		//init all fields.
+		subscribersMap = new ConcurrentHashMap<>();
+		eventsMap = new ConcurrentHashMap<>();
+		eventsMap.put(MissionReceivedEvent.class, new ArrayList<>());
+		eventsMap.put(AgentsAvailableEvent.class, new ArrayList<>());
+		eventsMap.put(GadgetAvailableEvent.class, new ArrayList<>());
+		eventsMap.put(TickBroadcast.class, new ArrayList<>()); //TODO:maybe delete
+		eventFutureMap = new ConcurrentHashMap<>();
 	}
 
 
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, Subscriber m) {
-		// TODO Auto-generated method stub
-
+		synchronized (eventsMap.get(type.getClass())) { //TODO: need notifyAll?
+			if (!eventsMap.get(type.getClass()).contains(m)) //TODO:check if sucsriber can subscribe twice
+				eventsMap.get(type.getClass()).add(m);
+		}
 	}
 
 	@Override
@@ -41,8 +60,7 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public <T> void complete(Event<T> e, T result) {
-		// TODO Auto-generated method stub
-
+		eventFutureMap.get(e).resolve(result);
 	}
 
 	@Override
@@ -54,28 +72,48 @@ public class MessageBrokerImpl implements MessageBroker {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		// TODO Auto-generated method stub
-		return null;
+		if(eventsMap.get(e.getClass()).isEmpty()) {
+			return null;
+		}
+		ArrayList<Subscriber> list = eventsMap.get(e.getClass());
+		Subscriber subscriber = list.remove(0);
+		list.add(subscriber);
+		subscribersMap.get(subscriber).add(e);
+		Future<T> future = new Future<>();
+		eventFutureMap.put(e, future);
+		return future;
 	}
 
 	@Override
 	public void register(Subscriber m) {
-		// TODO Auto-generated method stub
-
+		subscribersMap.put(m, new ConcurrentLinkedQueue<>());	//TODO:maybe another stracture
 	}
 
 	@Override
-	public void unregister(Subscriber m) {
-		// TODO Auto-generated method stub
-
+	public void unregister(Subscriber m) {	//TODO:maybe have to transfer all the subsriber event in the queue to the other subscribers
+		if(subscribersMap.containsKey(m)) {
+			subscribersMap.remove(m);
+			for(Map.Entry<Object, ArrayList<Subscriber>> eventType : eventsMap.entrySet()) {
+				synchronized (eventType) {
+					if (eventType.getValue().contains(m)) {
+						eventType.getValue().remove(m);
+					}
+				}
+			}
+		}
 	}
 
 	@Override
-	public Message awaitMessage(Subscriber m) throws InterruptedException {
-		// TODO Auto-generated method stub
-		return null;
+	public Message awaitMessage(Subscriber m) throws InterruptedException { //TODO: check the try N catch of this method
+		try {
+			while (subscribersMap.get(m).isEmpty()){
+				try {
+					Thread.currentThread().wait();
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		} catch(IllegalStateException e) { }
+		return subscribersMap.get(m).poll();
 	}
-
-	
-
 }

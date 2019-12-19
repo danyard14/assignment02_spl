@@ -55,4 +55,12 @@ public class Diary {
 	public int getTotal(){
 		return total;
 	}
+
+	/**
+	 * Increments the total number of received missions by 1
+	 */
+	public void incrementTotal(){
+		total++;
+
+	}
 }
