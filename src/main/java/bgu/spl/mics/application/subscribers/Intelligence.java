@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class Intelligence extends Subscriber {
 	private List<MessageInfo> messageInfoList;
-	private int counter = 0;
 
 	public Intelligence() {
 		super("Intelligence" );
