@@ -14,7 +14,7 @@ import java.util.Map;
  * message-queue (see {@link MessageBroker#register(Subscriber)}
  * method). The abstract Subscriber stores this callback together with the
  * type of the message is related to.
- * 
+ * <p>
  * Only private fields and methods may be added to this class.
  * <p>
  */
@@ -46,6 +46,7 @@ public abstract class Subscriber extends RunnableSubPub {
      * {@link Callback#call(java.lang.Object)} by calling
      * {@code callback.call(m)}.
      * <p>
+     *
      * @param <E>      The type of event to subscribe to.
      * @param <T>      The type of result expected for the subscribed event.
      * @param type     The {@link Class} representing the type of event to
@@ -74,6 +75,7 @@ public abstract class Subscriber extends RunnableSubPub {
      * {@link Callback#call(java.lang.Object)} by calling
      * {@code callback.call(m)}.
      * <p>
+     *
      * @param <B>      The type of broadcast message to subscribe to
      * @param type     The {@link Class} representing the type of broadcast
      *                 message to subscribe to.
@@ -89,6 +91,7 @@ public abstract class Subscriber extends RunnableSubPub {
      * Completes the received request {@code e} with the result {@code result}
      * using the MessageBroker.
      * <p>
+     *
      * @param <T>    The type of the expected result of the processed event
      *               {@code e}.
      * @param e      The event to complete.

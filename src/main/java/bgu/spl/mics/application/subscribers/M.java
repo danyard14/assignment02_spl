@@ -58,23 +58,23 @@ public class M extends Subscriber {
 				result.setResolved(true);
 				event.setResult(result);
 				Report report = new Report();
-				report.setAll();
+				//report.setAll();
 				event.setResult(result);
-				diary.addReport( );
+				//diary.addReport( );
 			}
 
 
-			Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
-			complete(event, result);
+			//Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
+			//complete(event, result);
 		});
 	}
 	private Report createReport(MissionInfo missionInfo){
 		Report report = new Report();
 
-		report.setAgentsNames();
+		//report.setAgentsNames();
 
 
-
+		return null;
 	}
 
 }

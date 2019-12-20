@@ -26,8 +26,7 @@ public class Moneypenny extends Subscriber {
 	@Override
 	protected void initialize() {
 		subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
-			ArrayList<String> agentsSerials = event.getAgents();
-			Result result = new Result(squad.getAgents(agentsSerials), 0 ); //TODO: deal with time
+			Result result = new Result(squad.getAgents(event.getAgents()), 0 ); //TODO: deal with time
 			complete(event, result);
 		});
 	}
