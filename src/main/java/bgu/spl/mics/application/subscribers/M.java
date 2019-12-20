@@ -5,6 +5,7 @@ import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.AgentsAvailableEvent;
 import bgu.spl.mics.application.messages.GadgetAvailableEvent;
 import bgu.spl.mics.application.messages.MissionReceivedEvent;
+import bgu.spl.mics.application.messages.SendAgentsEvent;
 import bgu.spl.mics.application.passiveObjects.*;
 
 import java.util.ArrayList;
@@ -17,10 +18,11 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class M extends Subscriber {
+	private int serial;
 
 	public M() {
 		super("Change_This_Name");
-		// TODO Implement this
+		// TODO init serial
 }
 
 	@Override
@@ -33,7 +35,7 @@ public class M extends Subscriber {
 			Future futureAgentsEvent = getSimplePublisher().sendEvent(agentsAvailableEvent);
 			while (!futureAgentsEvent.isDone())	{
 				try {
-					Thread.currentThread().wait();
+					wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
@@ -41,9 +43,10 @@ public class M extends Subscriber {
 			GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent();
 			gadgetAvailableEvent.setGadgets(missionInfo.getGadget());
 			Future futureGadgetEvent = getSimplePublisher().sendEvent(gadgetAvailableEvent);
+
 			while (!futureGadgetEvent.isDone())	{
 				try {
-					Thread.currentThread().wait();
+					wait();
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
@@ -53,28 +56,41 @@ public class M extends Subscriber {
 				diary.incrementTotal();
 			}
 			else { // time not expired
-				Squad.getInstance().sendAgents(agents,missionInfo.getDuration());
+
+				Future futureSendAgents = getSimplePublisher().sendEvent(new SendAgentsEvent(missionInfo.getSerialAgentsNumbers(),missionInfo.getDuration()));
+
+				while (!futureSendAgents.isDone()){
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+
+
 				Result result = new Result();
 				result.setResolved(true);
 				event.setResult(result);
-				Report report = new Report();
-				//report.setAll();
-				event.setResult(result);
-				//diary.addReport( );
+
+				Report report = createReport(missionInfo,futureAgentsEvent);;
+				diary.addReport(report);
 			}
 
 
-			//Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
-			//complete(event, result);
+//			Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
+//			complete(event, result);
 		});
 	}
-	private Report createReport(MissionInfo missionInfo){
+	private Report createReport(MissionInfo missionInfo, Future future){
 		Report report = new Report();
+		report.setAgentsSerialNumbers(missionInfo.getSerialAgentsNumbers());
+		report.setGadgetName(missionInfo.getGadget());
+		report.setMissionName(missionInfo.getMissionName());
+		report.setMoneypenny(((ResultAgentAvailable) future.get()).getMoneypenny());
+		report.setM(this.serial);
+		//TODO: deal with time (set time and so on)...
 
-		//report.setAgentsNames();
-
-
-		return null;
+		return report;
 	}
 
 }

@@ -22,6 +22,7 @@ public class Q extends Subscriber {
 
 	@Override
 	protected void initialize() {
+
 		subscribeEvent(GadgetAvailableEvent.class, (GadgetAvailableEvent event) -> {
 			String gadget = event.getGadget();
 			Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
