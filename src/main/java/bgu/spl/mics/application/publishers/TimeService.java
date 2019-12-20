@@ -18,13 +18,21 @@ import java.util.TimerTask;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class TimeService extends Publisher {
+    private final boolean debug = true;
+
     private long currentTime;
     private long duration;
     private Timer timer;
 
     public TimeService() {
-        super("Change_This_Name");//TODO: change
+        super("WorldClock");//TODO: change
         currentTime = 0;
+        timer = new Timer();
+    }
+    public TimeService(long duration) {
+        super("WorldClock");//TODO: change
+        currentTime = 0;
+        this.duration = duration;
         timer = new Timer();
     }
 
@@ -37,15 +45,16 @@ public class TimeService extends Publisher {
     public void run() {
             TimerTask repeatedTask = new TimerTask() {
                 public void run() {
-                    System.out.println("Task performed on " + currentTime);
-                    currentTime++;
+                    if(currentTime == duration)
+                        timer.cancel(); //TODO: terminate all the threads
+                    if(debug)
+                        System.out.println("Task performed on " + currentTime);
                     Broadcast b = new TickBroadcast(currentTime);
                     getSimplePublisher().sendBroadcast(b);
-                    if(currentTime == duration)
-                        timer.cancel();//TODO Where to stop the timer
+                    currentTime++;
                 }
             };
-            timer.scheduleAtFixedRate(repeatedTask, 0, 1000); //TODO Change to 100 Milliseconds
-    }
+            timer.scheduleAtFixedRate(repeatedTask, 1000, 1000); //TODO Change to 100 Milliseconds
 
+    }
 }

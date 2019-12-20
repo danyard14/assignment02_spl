@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,6 +18,9 @@ public class Inventory {
         private static Inventory instance = new Inventory();
     }
 
+    private Inventory(){
+        gadgets = new LinkedList<String>();
+    }
     /**
      * Retrieves the single instance of this class.
      */
