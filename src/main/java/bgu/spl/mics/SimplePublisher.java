@@ -23,8 +23,8 @@ public final class SimplePublisher {
      * 	       			null in case no Subscriber has subscribed to {@code e.getClass()}.
      */
     public final <T> Future<T> sendEvent(Event<T> e) {
-        //TODO: implement this.
-        return null; //TODO: delete this line :)
+        MessageBroker messageBrokerInstance = MessageBrokerImpl.getInstance();
+        return messageBrokerInstance.sendEvent(e);
     }
 
     /**

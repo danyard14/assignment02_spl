@@ -150,4 +150,5 @@ public class Report {
 	public void setTimeCreated(int timeCreated) {
 	    this.timeCreated = timeCreated;
     }
+
 }

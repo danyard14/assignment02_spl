@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentsAvailableEvent extends Event<Result> {
-    private ArrayList<String> agents;
+    private List<String> agents;
 
-    public ArrayList<String> getAgents() {
+    public List<String> getAgents() {
         return agents;
     }
 
-    public void setAgents(ArrayList<String> agents) {
+    public void setAgents(List<String> agents) {
         this.agents = agents;
     }
 }

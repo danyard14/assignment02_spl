@@ -61,6 +61,5 @@ public class Diary {
 	 */
 	public void incrementTotal(){
 		total++;
-
 	}
 }
