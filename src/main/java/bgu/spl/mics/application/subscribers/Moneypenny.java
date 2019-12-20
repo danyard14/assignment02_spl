@@ -2,11 +2,12 @@ package bgu.spl.mics.application.subscribers;
 
 import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.AgentsAvailableEvent;
-import bgu.spl.mics.application.messages.GadgetAvailableEvent;
+import bgu.spl.mics.application.messages.SendAgentsEvent;
 import bgu.spl.mics.application.passiveObjects.Result;
+import bgu.spl.mics.application.passiveObjects.ResultAgentAvailable;
 import bgu.spl.mics.application.passiveObjects.Squad;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Only this type of Subscriber can access the squad.
@@ -17,19 +18,32 @@ import java.util.ArrayList;
  */
 public class Moneypenny extends Subscriber {
 	Squad squad;
+	int moneypennySerial;
 
 	public Moneypenny() {
 		super("Change_This_Name");
 		squad = Squad.getInstance();
+		//TODO: init moneypenny serial
 	}
 
 	@Override
 	protected void initialize() {
 		subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
-			ArrayList<String> agentsSerials = event.getAgents();
-			Result result = new Result(squad.getAgents(agentsSerials), 0 ); //TODO: deal with time
+			List<String> agentsSerials = event.getAgents();
+			ResultAgentAvailable result = new ResultAgentAvailable();
+			result.setTime(0);	//TODO: deal with time
+			result.setSerials(squad.getAgentsNames(agentsSerials));
+			result.setMoneypenny(this.moneypennySerial);
+			result.setNames(squad.getAgentsNames(agentsSerials));
 			complete(event, result);
+		});
+
+		subscribeEvent(SendAgentsEvent.class, (SendAgentsEvent event) -> {
+			Squad.getInstance().sendAgents(event.getAgents(), event.getDuration());
 		});
 	}
 
+	public int getMoneypennySerial() {
+		return moneypennySerial;
+	}
 }
