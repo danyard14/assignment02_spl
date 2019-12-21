@@ -1,11 +1,10 @@
 package bgu.spl.mics.application.messages;
 
-import bgu.spl.mics.application.passiveObjects.ResultAgentAvailable;
+import bgu.spl.mics.application.passiveObjects.AgentAvailableResult;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class AgentsAvailableEvent extends Event<ResultAgentAvailable> {
+public class AgentsAvailableEvent extends Event<AgentAvailableResult> {
     private List<String> agents;
     private int moneypenny;//TODO TALK ABOUT IT
     private List<String> agentsNames;

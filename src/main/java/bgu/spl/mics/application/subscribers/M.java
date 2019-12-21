@@ -38,13 +38,13 @@ public class M extends Subscriber {
 //					Thread.currentThread().interrupt();
 //				}
 //			}
-			ResultAgentAvailable agentsAvailableEventFutureResult = (ResultAgentAvailable) agentsAvailableEventFuture.get();
+			AgentAvailableResult agentsAvailableEventFutureResult = (AgentAvailableResult) agentsAvailableEventFuture.get();
 
 			if (agentsAvailableEventFutureResult.isSuccessful())
 			{
 				GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent(missionInfo.getGadget());
 				Future gadgetAvailableEventFuture = getSimplePublisher().sendEvent(gadgetAvailableEvent);
-				ResultGadgetAvailable gadgetAvailableEventFutureResult = (ResultGadgetAvailable) gadgetAvailableEventFuture.get();
+				GadgetAvailableResult gadgetAvailableEventFutureResult = (GadgetAvailableResult) gadgetAvailableEventFuture.get();
 				if (gadgetAvailableEventFutureResult.isSuccessful() && currentTime <= missionInfo.getTimeExpired()) {
 					SendAgentsEvent sendAgentsEvent = new SendAgentsEvent(agents, missionInfo.getDuration());
 					Future sendAgentsEventFuture = getSimplePublisher().sendEvent(sendAgentsEvent);
@@ -66,7 +66,7 @@ public class M extends Subscriber {
 		});
 	}
 
-	private Report createReport(MissionInfo missionInfo, ResultAgentAvailable agentsAvailableEventFutureResult, ResultGadgetAvailable gadgetAvailableEventFutureResult) {
+	private Report createReport(MissionInfo missionInfo, AgentAvailableResult agentsAvailableEventFutureResult, GadgetAvailableResult gadgetAvailableEventFutureResult) {
 		Report report = new Report();
 		report.setMissionName(missionInfo.getMissionName());
 		report.setM(mId);

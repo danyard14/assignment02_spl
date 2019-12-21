@@ -6,7 +6,7 @@ import bgu.spl.mics.application.messages.ReleaseAgentsEvent;
 import bgu.spl.mics.application.messages.SendAgentsEvent;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.Result;
-import bgu.spl.mics.application.passiveObjects.ResultAgentAvailable;
+import bgu.spl.mics.application.passiveObjects.AgentAvailableResult;
 import bgu.spl.mics.application.passiveObjects.Squad;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class Moneypenny extends Subscriber {
 		if (moneypennyId % 2 == 0) {
 			subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
 				List<String> agentsSerials = event.getAgents();
-				ResultAgentAvailable result = new ResultAgentAvailable(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
+				AgentAvailableResult result = new AgentAvailableResult(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
 				complete(event, result);
 			});
 		}

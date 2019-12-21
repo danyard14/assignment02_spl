@@ -1,10 +1,8 @@
 package bgu.spl.mics.application.messages;
 
-import bgu.spl.mics.application.passiveObjects.ResultGadgetAvailable;
+import bgu.spl.mics.application.passiveObjects.GadgetAvailableResult;
 
-import java.util.List;
-
-public class GadgetAvailableEvent extends Event<ResultGadgetAvailable> {
+public class GadgetAvailableEvent extends Event<GadgetAvailableResult> {
     private String gadget;
 
     public GadgetAvailableEvent(String gadget) { this.gadget = gadget; }
