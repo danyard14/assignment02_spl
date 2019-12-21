@@ -14,17 +14,26 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class M extends Subscriber {
+	private final boolean debug = true;
 	private int currentTime;
 	private int mId;
 
 	public M() {
-		super("Change_This_Name");
-		// TODO init serial
-}
+		super("M");
+		currentTime = 0;
+	}
+
+	public M(int mId) {
+		super("M"+mId);
+		currentTime = 0;
+		this.mId = mId;
+	}
 
 	@Override
-	protected void initialize() {
+	protected void initialize() { //TODO Make it thread safety
 		subscribeEvent(MissionReceivedEvent.class, (MissionReceivedEvent event) -> {
+			if (debug)
+				System.out.println(this.getName() + " Received Message");
 			MissionInfo missionInfo = event.getMissionInfo();
 			List<String> agents = missionInfo.getSerialAgentsNumbers();
 			Diary diary = Diary.getInstance();

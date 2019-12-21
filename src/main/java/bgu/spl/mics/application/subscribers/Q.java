@@ -13,11 +13,18 @@ import bgu.spl.mics.application.passiveObjects.GadgetAvailableResult;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Q extends Subscriber {
+	private final boolean debug = true;
 	private int currentTime;
 	private Inventory inventory;
 
 	public Q() {
-		super("Change_This_Name");
+		super("Q");
+		currentTime = 0;
+		inventory = Inventory.getInstance();
+	}
+	public Q(int id) {
+		super("Q" + 1);
+		currentTime = 0;
 		inventory = Inventory.getInstance();
 	}
 
@@ -30,6 +37,8 @@ public class Q extends Subscriber {
 		});
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
 			currentTime = broadcast.getCurrentTime();
+			if (debug)
+				System.out.println(this.getName() + " currentTime update to: " + currentTime);
 		});
 	}
 }

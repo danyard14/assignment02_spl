@@ -119,8 +119,8 @@ public abstract class Subscriber extends RunnableSubPub {
      */
     @Override
     public final void run() {
-        initialize();
         messageBrokerInstance.register(this);
+        initialize();
         while (!terminated) {
             try {
                Message message = messageBrokerInstance.awaitMessage(this);

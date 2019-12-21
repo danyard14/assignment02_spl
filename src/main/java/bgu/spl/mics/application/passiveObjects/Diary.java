@@ -1,6 +1,9 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import sun.awt.image.ImageWatched;
+
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Passive object representing the diary where all reports are stored.
@@ -12,7 +15,7 @@ import java.util.List;
  */
 public class Diary {
 	private List<Report> reports;
-	private int total;
+	private AtomicInteger total;
 
 	private static class DiaryHolder {
 		private static Diary instance = new Diary();
@@ -33,7 +36,9 @@ public class Diary {
 	 * @param reportToAdd - the report to add
 	 */
 	public void addReport(Report reportToAdd){
-		reports.add(reportToAdd);
+		synchronized (this) {//TODO: How to do atomic
+			reports.add(reportToAdd);
+		}
 	}
 
 	/**
@@ -52,13 +57,13 @@ public class Diary {
 	 * @return the total number of received missions (executed / aborted) be all the M-instances.
 	 */
 	public int getTotal(){
-		return total;
+			return (int) total.get();
 	}
 
 	/**
 	 * Increments the total number of received missions by 1
 	 */
 	public void incrementTotal(){
-		total++;
+		total.getAndIncrement();//TODO check
 	}
 }

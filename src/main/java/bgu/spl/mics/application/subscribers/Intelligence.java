@@ -9,6 +9,7 @@ import bgu.spl.mics.application.passiveObjects.MissionInfo;
 
 import java.util.List;
 
+
 /**
  * A Publisher\Subscriber.
  * Holds a list of Info objects and sends them

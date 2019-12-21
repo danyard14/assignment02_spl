@@ -24,9 +24,15 @@ public class Moneypenny extends Subscriber {
 	Squad squad;
 
 	public Moneypenny() {
-		super("Change_This_Name");
+		super("Moneypenny");
+		currentTime = 0;
 		squad = Squad.getInstance();
-		//TODO: init moneypenny serial
+	}
+
+	public Moneypenny(int id) {
+		super("Moneypenny" + id);
+		currentTime = 0;
+		squad = Squad.getInstance();
 	}
 
 	@Override

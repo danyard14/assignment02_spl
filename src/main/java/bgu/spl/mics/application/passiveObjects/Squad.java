@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.passiveObjects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +26,7 @@ public class Squad {
 
     // initialization
     private Squad() {
-        agents = new ConcurrentHashMap<>();
+        agents = new HashMap<>();
     }
 
     /**
@@ -43,7 +44,7 @@ public class Squad {
      *               of the squad.
      */
     public void load(Agent[] agents) {
-        for (Agent agent : agents) {
+        for (Agent agent : agents) { //TODO Atomic?
             this.agents.put(agent.getSerialNumber(), agent);
         }
     }
@@ -52,9 +53,11 @@ public class Squad {
      * Releases agents.
      */
     public void releaseAgents(List<String> serials) {
-        for (String serial : serials) {
-            if (this.agents.containsKey(serial)) {
-                this.agents.get(serial).release();
+        synchronized (this) {
+            for (String serial : serials) {
+                if (this.agents.containsKey(serial)) {
+                    this.agents.get(serial).release();
+                }
             }
         }
     }
@@ -70,9 +73,7 @@ public class Squad {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        for (String serial : serials) {
-            agents.get(serial).release();
-        }
+		releaseAgents(serials);
     }
 
     /**
@@ -87,15 +88,17 @@ public class Squad {
                 return false;
             }
         }
-        for (String serial : serials) { //Acquire all the agents
-            while (!agents.get(serial).isAvailable()) {
-                try {
-                    Thread.currentThread().wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+        synchronized(this){
+            for (String serial : serials) { //Acquire all the agents
+                while (!agents.get(serial).isAvailable()) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
+                this.agents.get(serial).acquire();
             }
-            this.agents.get(serial).acquire();
         }
         return true;
     }

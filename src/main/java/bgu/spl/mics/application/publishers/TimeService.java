@@ -55,6 +55,5 @@ public class TimeService extends Publisher {
                 }
             };
             timer.scheduleAtFixedRate(repeatedTask, 1000, 1000); //TODO Change to 100 Milliseconds
-
     }
 }

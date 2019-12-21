@@ -1,10 +1,15 @@
 package bgu.spl.mics.application;
 
+import bgu.spl.mics.MessageBroker;
+import bgu.spl.mics.MessageBrokerImpl;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.MissionInfo;
 import bgu.spl.mics.application.passiveObjects.Squad;
 import bgu.spl.mics.application.publishers.TimeService;
 import bgu.spl.mics.application.subscribers.Intelligence;
+import bgu.spl.mics.application.subscribers.M;
+import bgu.spl.mics.application.subscribers.Moneypenny;
+import bgu.spl.mics.application.subscribers.Q;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
@@ -24,14 +29,13 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/input.json"));
+            JsonReader reader = new JsonReader(new FileReader("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/input.json"));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
             squad.load(parser.squad);
-            int NumberOfMs = parser.services.M;
-            int NumberOfMP = parser.services.Moneypenny;
-            int NumberOfIntelligence = parser.services.intelligence.length;
+            int numOfMObjects = parser.services.M;
+            int numOfMoneyPennyObjects = parser.services.Moneypenny;
             JsonParser.MI6Class.IntelligencesArray[] intelligencesArray = parser.services.intelligence;
             int idCounter = 1;
             for (JsonParser.MI6Class.IntelligencesArray missionsArray: intelligencesArray) { //TODO: run every intelligence
@@ -43,6 +47,20 @@ public class MI6Runner {
                 //TODO end creation of intelligence thread
                 idCounter++;
             }
+            for (int i = 1; i <= numOfMObjects; i++) {
+                M m = new M(i);
+                Thread mThread = new Thread(m);
+                mThread.start();
+            }
+            for (int i = 1; i <= numOfMoneyPennyObjects; i++) {
+                Moneypenny moneypenny = new Moneypenny(i);
+                Thread moneypennyThread = new Thread(moneypenny);
+                moneypennyThread.start();
+            }
+            Q q = new Q(1);
+            Thread qThread = new Thread(q);
+            qThread.start();
+
             Thread timeService = new Thread(new TimeService(appDuration));
             timeService.start();
         } catch (FileNotFoundException e) {
@@ -66,6 +84,7 @@ public class MI6Runner {
             for (String serialAgentsNumber: mission.serialAgentsNumbers) {
                 serialAgentsNumbers.add(serialAgentsNumber);
             }
+            missionInfo.setSerialAgentsNumbers(serialAgentsNumbers);
             missionInfo.setGadget(mission.gadget);
             missionInfo.setTimeIssued(mission.timeIssued);
             missionInfo.setTimeExpired(mission.timeExpired);
