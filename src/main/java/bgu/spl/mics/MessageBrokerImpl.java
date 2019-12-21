@@ -17,7 +17,7 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class MessageBrokerImpl implements MessageBroker {
 	private Map<Subscriber, Queue<Message>> subscribersMap; //TODO:change the message type
-	private Map<Object, ArrayList<Subscriber>> eventsMap;	//TODO:change field name
+	private Map<String, ArrayList<Subscriber>> eventsMap;	//TODO:change field name
 	private Map<Message, Future> eventFutureMap;
 
 	private static class MessageBrokerHolder{
@@ -34,10 +34,10 @@ public class MessageBrokerImpl implements MessageBroker {
 	private MessageBrokerImpl(){
 		subscribersMap = new ConcurrentHashMap<>();
 		eventsMap = new ConcurrentHashMap<>();
-		eventsMap.put(MissionReceivedEvent.class, new ArrayList<>());
-		eventsMap.put(AgentsAvailableEvent.class, new ArrayList<>());
-		eventsMap.put(GadgetAvailableEvent.class, new ArrayList<>());
-		eventsMap.put(TickBroadcast.class, new ArrayList<>()); //TODO:maybe delete
+		eventsMap.put(MissionReceivedEvent.class.getName(), new ArrayList<>());
+		eventsMap.put(AgentsAvailableEvent.class.getName(), new ArrayList<>());
+		eventsMap.put(GadgetAvailableEvent.class.getName(), new ArrayList<>());
+		eventsMap.put(TickBroadcast.class.getName(), new ArrayList<>());
 		eventFutureMap = new ConcurrentHashMap<>();
 	}
 
@@ -45,16 +45,23 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, Subscriber m) {
-		synchronized (eventsMap.get(type.getClass())) { //TODO: need notifyAll?
-			if (!eventsMap.get(type.getClass()).contains(m)) //TODO:check if sucsriber can subscribe twice
-				eventsMap.get(type.getClass()).add(m);
+		synchronized (eventsMap.get(type.getClass().getName())) { //TODO: need notifyAll?
+			if (!eventsMap.get(type.getClass().getName()).contains(m)) //TODO:check if sucsriber can subscribe twice
+				eventsMap.get(type.getClass().getName()).add(m);
 		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, Subscriber m) {
-		// TODO Auto-generated method stub
-
+		System.out.println(type.getName());
+		Object y = type.getClass().getName();
+		Object x = eventsMap.get(type.getName());
+		synchronized (eventsMap.get(type.getName())) { //TODO: need notifyAll?
+			if (!eventsMap.get(type.getName()).contains(m)) //TODO:check if subscriber can subscribe twice
+				eventsMap.get(type.getName()).add(m);
+			else
+				System.out.println();
+		}
 	}
 
 	@Override
@@ -65,19 +72,20 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		ArrayList<Subscriber> list = eventsMap.get(b.getClass());
+		String x = b.getClass().getName();
+		ArrayList<Subscriber> list = eventsMap.get(b.getClass().getName());
 		for (Subscriber subscriber : list) {
-			subscribersMap.get(b.getClass()).add(b);
+			subscribersMap.get(b.getClass().getName()).add(b);
 		}
 	}
 
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		if(eventsMap.get(e.getClass()).isEmpty()) {
+		if(eventsMap.get(e.getClass().getName()).isEmpty()) {
 			return null;
 		}
-		ArrayList<Subscriber> list = eventsMap.get(e.getClass());
+		ArrayList<Subscriber> list = eventsMap.get(e.getClass().getName());
 		Subscriber subscriber = list.remove(0);
 		list.add(subscriber);
 		subscribersMap.get(subscriber).add(e);
@@ -95,7 +103,7 @@ public class MessageBrokerImpl implements MessageBroker {
 	public void unregister(Subscriber m) {	//TODO:maybe have to transfer all the subsriber event in the queue to the other subscribers
 		if(subscribersMap.containsKey(m)) {
 			subscribersMap.remove(m);
-			for(Map.Entry<Object, ArrayList<Subscriber>> eventType : eventsMap.entrySet()) {
+			for(Map.Entry<String, ArrayList<Subscriber>> eventType : eventsMap.entrySet()) {
 				synchronized (eventType) {
 					if (eventType.getValue().contains(m)) {
 						eventType.getValue().remove(m);

@@ -48,7 +48,7 @@ public class TimeService extends Publisher {
                     if(currentTime == duration)
                         timer.cancel(); //TODO: terminate all the threads
                     if(debug)
-                        System.out.println("Task performed on " + currentTime);
+                        System.out.println("CurrentTime: " + currentTime);
                     Broadcast b = new TickBroadcast(currentTime);
                     getSimplePublisher().sendBroadcast(b);
                     currentTime++;

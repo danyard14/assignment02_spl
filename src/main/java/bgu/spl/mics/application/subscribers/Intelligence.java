@@ -17,19 +17,26 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Intelligence extends Subscriber {
+    private final boolean debug = true;
     private List<MissionInfo> missionInfoList;
 
     public Intelligence(int id, List<MissionInfo> missionInfoList) {
         super("Intelligence_" + id);
         this.missionInfoList = missionInfoList;
+        if (debug)
+            System.out.println(this.getName() + " is created");
     }
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(TickBroadcast.class, (TickBroadcast event) -> {
-            for (MissionInfo mission: missionInfoList) {
-                if(event.getCurrentTime() == mission.getTimeIssued()) {
-                    MissionReceivedEvent missionReceivedEvent = new MissionReceivedEvent(mission);
+        if (debug)
+            System.out.println(this.getName() + " is initialize");
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
+            for (MissionInfo missionInfo: missionInfoList) {
+                if(missionInfo.getTimeIssued() == broadcast.getCurrentTime()) {
+                    if (debug)
+                        System.out.println("CurrentTime: " + missionInfo.getTimeIssued() + ", Intelligence: " + this.getName() + ", Sent MissionReceivedEvent");
+                    MissionReceivedEvent missionReceivedEvent = new MissionReceivedEvent(missionInfo);
                     MessageBrokerImpl.getInstance().sendEvent(missionReceivedEvent);
                 }
             }

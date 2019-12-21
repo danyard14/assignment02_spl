@@ -84,7 +84,10 @@ public abstract class Subscriber extends RunnableSubPub {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        //TODO: implement this.
+        if(!callbackMap.containsKey(type)) {
+            callbackMap.put(type, callback);
+            messageBrokerInstance.subscribeBroadcast(type, this);
+        }
     }
 
     /**

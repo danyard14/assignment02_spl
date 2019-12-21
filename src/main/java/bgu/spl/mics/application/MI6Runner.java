@@ -31,19 +31,20 @@ public class MI6Runner {
             squad.load(parser.squad);
             int NumberOfMs = parser.services.M;
             int NumberOfMP = parser.services.Moneypenny;
-            Thread timeService = new Thread(new TimeService(appDuration));
-            timeService.start();
             int NumberOfIntelligence = parser.services.intelligence.length;
             JsonParser.MI6Class.IntelligencesArray[] intelligencesArray = parser.services.intelligence;
             int idCounter = 1;
             for (JsonParser.MI6Class.IntelligencesArray missionsArray: intelligencesArray) { //TODO: run every intelligence
                 List<MissionInfo> missionInfoList = convertFromJsonParserToMissionInfoList(missionsArray);
                 Intelligence intelligence = new Intelligence(idCounter, missionInfoList);
-                    //TODO Run the intelligence thread
-//                Thread intelligenceThread = new Thread(intelligence);
-//                intelligenceThread.start();
+                //TODO Run the intelligence thread
+                Thread intelligenceThread = new Thread(intelligence);
+                intelligenceThread.start();
+                //TODO end creation of intelligence thread
                 idCounter++;
             }
+            Thread timeService = new Thread(new TimeService(appDuration));
+            timeService.start();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
