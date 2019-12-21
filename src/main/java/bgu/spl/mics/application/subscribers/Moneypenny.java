@@ -2,6 +2,7 @@ package bgu.spl.mics.application.subscribers;
 
 import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.AgentsAvailableEvent;
+import bgu.spl.mics.application.messages.ReleaseAgentsEvent;
 import bgu.spl.mics.application.messages.SendAgentsEvent;
 import bgu.spl.mics.application.passiveObjects.Result;
 import bgu.spl.mics.application.passiveObjects.ResultAgentAvailable;
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class Moneypenny extends Subscriber {
 	Squad squad;
-	int moneypennySerial;
+	int moneypennyId;
 
 	public Moneypenny() {
 		super("Change_This_Name");
@@ -28,22 +29,30 @@ public class Moneypenny extends Subscriber {
 
 	@Override
 	protected void initialize() {
-		subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
-			List<String> agentsSerials = event.getAgents();
-			ResultAgentAvailable result = new ResultAgentAvailable();
-			result.setTime(0);	//TODO: deal with time
-			result.setSerials(squad.getAgentsNames(agentsSerials));
-			result.setMoneypenny(this.moneypennySerial);
-			result.setNames(squad.getAgentsNames(agentsSerials));
-			complete(event, result);
-		});
-
-		subscribeEvent(SendAgentsEvent.class, (SendAgentsEvent event) -> {
-			Squad.getInstance().sendAgents(event.getAgents(), event.getDuration());
-		});
+		if (moneypennyId % 2 == 0) {
+			subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
+				List<String> agentsSerials = event.getAgents();
+				ResultAgentAvailable result = new ResultAgentAvailable(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
+				complete(event, result);
+			});
+		}
+		else {
+			subscribeEvent(SendAgentsEvent.class, (SendAgentsEvent event) -> {
+				List<String> agentsSerials = event.getAgents();
+				squad.sendAgents(agentsSerials, event.getDuration());
+				Result result = new Result(true);
+				complete(event, result);
+			});
+			subscribeEvent(ReleaseAgentsEvent.class, (ReleaseAgentsEvent event) -> {
+				List<String> agentsSerials = event.getSerialAgentsNumbers();
+				squad.releaseAgents(agentsSerials);
+				Result result = new Result(true);
+				complete(event, result);
+			});
+		}
 	}
 
 	public int getMoneypennySerial() {
-		return moneypennySerial;
+		return moneypennyId;
 	}
 }

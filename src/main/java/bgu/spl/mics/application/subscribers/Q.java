@@ -3,8 +3,10 @@ package bgu.spl.mics.application.subscribers;
 import bgu.spl.mics.Callback;
 import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.GadgetAvailableEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.Result;
+import bgu.spl.mics.application.passiveObjects.ResultGadgetAvailable;
 
 /**
  * Q is the only Subscriber\Publisher that has access to the {@link bgu.spl.mics.application.passiveObjects.Inventory}.
@@ -13,6 +15,7 @@ import bgu.spl.mics.application.passiveObjects.Result;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Q extends Subscriber {
+	private int currentTime;
 	private Inventory inventory;
 
 	public Q() {
@@ -24,8 +27,11 @@ public class Q extends Subscriber {
 	protected void initialize() {
 		subscribeEvent(GadgetAvailableEvent.class, (GadgetAvailableEvent event) -> {
 			String gadget = event.getGadget();
-			Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
+			ResultGadgetAvailable result = new ResultGadgetAvailable(currentTime, inventory.getItem(gadget));
 			complete(event, result);
+		});
+		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
+			currentTime = broadcast.getCurrentTime();
 		});
 	}
 }

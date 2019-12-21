@@ -34,7 +34,6 @@ public class Diary {
 	 */
 	public void addReport(Report reportToAdd){
 		reports.add(reportToAdd);
-		total++;
 	}
 
 	/**

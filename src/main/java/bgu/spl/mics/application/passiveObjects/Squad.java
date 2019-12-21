@@ -65,9 +65,6 @@ public class Squad {
      * @param time time ticks to sleep
      */
     public void sendAgents(List<String> serials, int time) {
-//		for (String serial : serials) {
-//			agents.get(serial).acquire(); //TODO: maybe change (agents are already acquired)
-//		}
 		try {
             Thread.currentThread().sleep(time);
         } catch (InterruptedException e) {
@@ -85,10 +82,12 @@ public class Squad {
      * @return ‘false’ if an agent of serialNumber ‘serial’ is missing, and ‘true’ otherwise
      */
     public boolean getAgents(List<String> serials) {
-        for (String serial : serials) {
+        for (String serial : serials) { //Check that all the agents exist in the squad
             if (!this.agents.containsKey(serial)) {
                 return false;
             }
+        }
+        for (String serial : serials) { //Acquire all the agents
             while (!agents.get(serial).isAvailable()) {
                 try {
                     Thread.currentThread().wait();

@@ -3,18 +3,18 @@ package bgu.spl.mics.application.messages;
 import bgu.spl.mics.Broadcast;
 
 public class TickBroadcast implements Broadcast {
-    private long currentTime;
+    private int currentTime;
 
     //Constructors
     public TickBroadcast() {
         currentTime = 0;
     }
-    public TickBroadcast(long currentTime) {
+    public TickBroadcast(int currentTime) {
         this.currentTime = currentTime;
     }
 
     //Getters
-    public long getCurrentTime() {
+    public int getCurrentTime() {
         return currentTime;
     }
 }

@@ -1,30 +1,24 @@
 package bgu.spl.mics.application.passiveObjects;
 
 public class Result {
-    private boolean isResolved;
-    private int time;
+    private boolean isSuccessful;
 
     public Result(){
     }
 
-    public Result(Boolean isResolved, int time){
-        this.isResolved = isResolved;
-        this.time = time;
+    public Result(boolean isSuccessful) {
+        this.isSuccessful = isSuccessful;
     }
 
-    public boolean isResolved() {
-        return isResolved;
+    public Result(Boolean isSuccessful){
+        this.isSuccessful = isSuccessful;
     }
 
-    public int getTime() {
-        return time;
+    public boolean isSuccessful() {
+        return isSuccessful;
     }
 
-    public void setTime(int time) {
-        this.time = time;
-    }
-
-    public void setResolved(boolean resolved) {
-        isResolved = resolved;
+    public void setIsSuccessful(boolean resolved) {
+        isSuccessful = resolved;
     }
 }

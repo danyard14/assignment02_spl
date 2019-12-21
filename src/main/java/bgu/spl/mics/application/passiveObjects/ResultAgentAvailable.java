@@ -3,9 +3,16 @@ package bgu.spl.mics.application.passiveObjects;
 import java.util.List;
 
 public class ResultAgentAvailable extends Result {
-    private List<String> serials;
-    private List<String> names;
     private int moneypenny;
+    private List<String> agentsSerials;
+    private List<String> agentsNames;
+
+    public ResultAgentAvailable(int moneypenny, List<String> agentsSerials, List<String> agentsNames, boolean isSuccessful) {
+        super(isSuccessful);
+        this.moneypenny = moneypenny;
+        this.agentsSerials = agentsSerials;
+        this.agentsNames = agentsNames;
+    }
 
     public void setMoneypenny(int moneypenny) {
         this.moneypenny = moneypenny;
@@ -15,18 +22,18 @@ public class ResultAgentAvailable extends Result {
         return moneypenny;
     }
 
-    public List<String> getNames() {
-        return names;
+    public List<String> getAgentsNames() {
+        return agentsNames;
     }
 
-    public List<String> getSerials() {
-        return serials;
+    public List<String> getAgentsSerials() {
+        return agentsSerials;
     }
 
-    public void setNames(List<String> names) {
-        this.names = names;
+    public void setAgentsNames(List<String> agentsNames) {
+        this.agentsNames = agentsNames;
     }
-    public void setSerials(List<String> serials){
-        this.serials = serials;
+    public void setAgentsSerials(List<String> serials){
+        this.agentsSerials = serials;
     }
 }

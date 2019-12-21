@@ -2,13 +2,9 @@ package bgu.spl.mics.application.subscribers;
 
 import bgu.spl.mics.Future;
 import bgu.spl.mics.Subscriber;
-import bgu.spl.mics.application.messages.AgentsAvailableEvent;
-import bgu.spl.mics.application.messages.GadgetAvailableEvent;
-import bgu.spl.mics.application.messages.MissionReceivedEvent;
-import bgu.spl.mics.application.messages.SendAgentsEvent;
+import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +14,8 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class M extends Subscriber {
-	private int serial;
+	private int currentTime;
+	private int mId;
 
 	public M() {
 		super("Change_This_Name");
@@ -30,67 +27,56 @@ public class M extends Subscriber {
 		subscribeEvent(MissionReceivedEvent.class, (MissionReceivedEvent event) -> {
 			MissionInfo missionInfo = event.getMissionInfo();
 			List<String> agents = missionInfo.getSerialAgentsNumbers();
-			AgentsAvailableEvent agentsAvailableEvent = new AgentsAvailableEvent();
-			agentsAvailableEvent.setAgents(agents);
-			Future futureAgentsEvent = getSimplePublisher().sendEvent(agentsAvailableEvent);
-			while (!futureAgentsEvent.isDone())	{
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-			GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent();
-			gadgetAvailableEvent.setGadgets(missionInfo.getGadget());
-			Future futureGadgetEvent = getSimplePublisher().sendEvent(gadgetAvailableEvent);
-
-			while (!futureGadgetEvent.isDone())	{
-				try {
-					wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
 			Diary diary = Diary.getInstance();
-			if(missionInfo.getTimeExpired() > 0 /* TODO: check how to make this work and check about duration */){
-				diary.incrementTotal();
-			}
-			else { // time not expired
+			Result result = new Result(false);
+			AgentsAvailableEvent agentsAvailableEvent = new AgentsAvailableEvent(agents);
+			Future agentsAvailableEventFuture = getSimplePublisher().sendEvent(agentsAvailableEvent);
+//			while (!futureAgentsEvent.isDone())	{//TODO:synchronized?
+//				try {
+//					wait();
+//				} catch (InterruptedException e) {
+//					Thread.currentThread().interrupt();
+//				}
+//			}
+			ResultAgentAvailable agentsAvailableEventFutureResult = (ResultAgentAvailable) agentsAvailableEventFuture.get();
 
-				Future futureSendAgents = getSimplePublisher().sendEvent(new SendAgentsEvent(missionInfo.getSerialAgentsNumbers(),missionInfo.getDuration()));
-
-				while (!futureSendAgents.isDone()){
-					try {
-						wait();
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
+			if (agentsAvailableEventFutureResult.isSuccessful())
+			{
+				GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent(missionInfo.getGadget());
+				Future gadgetAvailableEventFuture = getSimplePublisher().sendEvent(gadgetAvailableEvent);
+				ResultGadgetAvailable gadgetAvailableEventFutureResult = (ResultGadgetAvailable) gadgetAvailableEventFuture.get();
+				if (gadgetAvailableEventFutureResult.isSuccessful() && currentTime <= missionInfo.getTimeExpired()) {
+					SendAgentsEvent sendAgentsEvent = new SendAgentsEvent(agents, missionInfo.getDuration());
+					Future sendAgentsEventFuture = getSimplePublisher().sendEvent(sendAgentsEvent);
+					Result sendAgentsEventFutureResult = (Result) sendAgentsEventFuture.get();
+					Report report = createReport(missionInfo, agentsAvailableEventFutureResult, gadgetAvailableEventFutureResult);
+					diary.addReport(report);
+					result.setIsSuccessful(true);
 				}
-
-
-				Result result = new Result();
-				result.setResolved(true);
-				event.setResult(result);
-
-				Report report = createReport(missionInfo,futureAgentsEvent);;
-				diary.addReport(report);
+				else {
+					ReleaseAgentsEvent releaseAgentsEvent = new ReleaseAgentsEvent(missionInfo.getSerialAgentsNumbers());
+					getSimplePublisher().sendEvent(releaseAgentsEvent);
+				}
 			}
-
-
-//			Result result = new Result(inventory.getItem(gadget), 0 ); //TODO: deal with time
-//			complete(event, result);
+			diary.incrementTotal();
+			complete(event, result);
+		});
+		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
+			currentTime = broadcast.getCurrentTime();
 		});
 	}
-	private Report createReport(MissionInfo missionInfo, Future future){
-		Report report = new Report();
-		report.setAgentsSerialNumbers(missionInfo.getSerialAgentsNumbers());
-		report.setGadgetName(missionInfo.getGadget());
-		report.setMissionName(missionInfo.getMissionName());
-		report.setMoneypenny(((ResultAgentAvailable) future.get()).getMoneypenny());
-		report.setM(this.serial);
-		//TODO: deal with time (set time and so on)...
 
+	private Report createReport(MissionInfo missionInfo, ResultAgentAvailable agentsAvailableEventFutureResult, ResultGadgetAvailable gadgetAvailableEventFutureResult) {
+		Report report = new Report();
+		report.setMissionName(missionInfo.getMissionName());
+		report.setM(mId);
+		report.setMoneypenny(agentsAvailableEventFutureResult.getMoneypenny());
+		report.setAgentsSerialNumbers(missionInfo.getSerialAgentsNumbers());
+		report.setAgentsNames(agentsAvailableEventFutureResult.getAgentsNames());
+		report.setGadgetName(missionInfo.getGadget());
+		report.setTimeIssued(missionInfo.getTimeIssued());
+		report.setQTime(gadgetAvailableEventFutureResult.getqTime());
+		report.setTimeCreated(currentTime);
 		return report;
 	}
-
 }

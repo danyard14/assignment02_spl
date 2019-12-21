@@ -9,6 +9,7 @@ import bgu.spl.mics.application.passiveObjects.Result;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 /**
  * The {@link MessageBrokerImpl class is the implementation of the MessageBroker interface.
@@ -16,7 +17,7 @@ import java.util.concurrent.SynchronousQueue;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBrokerImpl implements MessageBroker {
-	private Map<Subscriber, Queue<Message>> subscribersMap; //TODO:change the message type
+	private Map<Subscriber, LinkedBlockingQueue<Message>> subscribersMap; //TODO:change the message type
 	private Map<String, ArrayList<Subscriber>> eventsMap;	//TODO:change field name
 	private Map<Message, Future> eventFutureMap;
 
@@ -75,7 +76,7 @@ public class MessageBrokerImpl implements MessageBroker {
 		String x = b.getClass().getName();
 		ArrayList<Subscriber> list = eventsMap.get(b.getClass().getName());
 		for (Subscriber subscriber : list) {
-			subscribersMap.get(b.getClass().getName()).add(b);
+			subscribersMap.get(subscriber).add(b);
 		}
 	}
 
@@ -96,7 +97,7 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public void register(Subscriber m) {
-		subscribersMap.put(m, new ConcurrentLinkedQueue<>());	//TODO:maybe another stracture
+		subscribersMap.put(m, new LinkedBlockingQueue<>());	//TODO:maybe another stracture
 	}
 
 	@Override
@@ -115,15 +116,19 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public Message awaitMessage(Subscriber m) throws InterruptedException { //TODO: check the try N catch of this method
-		try {
-			while (subscribersMap.get(m).isEmpty()){
-				try {
-					Thread.currentThread().wait();
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-		} catch(IllegalStateException e) { }
-		return subscribersMap.get(m).poll();
+//		try {
+		//TODO delete comments
+		if (subscribersMap.get(m) != null)
+			return subscribersMap.get(m).take();;
+//			while (subscribersMap.get(m).isEmpty()){
+//				try {
+//					Thread.currentThread().wait();
+//				} catch (InterruptedException e) {
+//					Thread.currentThread().interrupt();
+//				}
+//			}
+//		} catch(IllegalStateException e) { }
+//		return subscribersMap.get(m).poll();
+		return null;
 	}
 }
