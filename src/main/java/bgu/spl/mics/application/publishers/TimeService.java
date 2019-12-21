@@ -20,8 +20,8 @@ import java.util.TimerTask;
 public class TimeService extends Publisher {
     private final boolean debug = true;
 
-    private long currentTime;
-    private long duration;
+    private int currentTime;
+    private int duration;
     private Timer timer;
 
     public TimeService() {
@@ -29,7 +29,7 @@ public class TimeService extends Publisher {
         currentTime = 0;
         timer = new Timer();
     }
-    public TimeService(long duration) {
+    public TimeService(int duration) {
         super("WorldClock");//TODO: change
         currentTime = 0;
         this.duration = duration;

@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.passiveObjects.Result;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -11,13 +13,13 @@ import java.util.concurrent.TimeUnit;
  * No public constructor is allowed except for the empty constructor.
  */
 public class Future<T> {
-
-
+    private boolean isSolved;
+    private T result;
     /**
      * This should be the only public constructor in this class.
      */
     public Future() {
-        //TODO: implement this
+        isSolved = false;
     }
 
     /**
@@ -29,23 +31,22 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      */
     public T get() {
-        //TODO: implement this.
-        return null;
+        return result;
     }
 
     /**
      * Resolves the result of this Future object.
      */
     public void resolve(T result) {
-        //TODO: implement this.
+        isSolved = true;
+        this.result = result;
     }
 
     /**
      * @return true if this object has been resolved, false otherwise
      */
     public boolean isDone() {
-        //TODO: implement this.
-        return false;
+        return isSolved;
     }
 
     /**
@@ -62,7 +63,7 @@ public class Future<T> {
      */
     public T get(long timeout, TimeUnit unit) {
         //TODO: implement this.
-        return null;
+        return result;
     }
 
 }

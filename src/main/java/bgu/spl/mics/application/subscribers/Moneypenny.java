@@ -4,6 +4,7 @@ import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.AgentsAvailableEvent;
 import bgu.spl.mics.application.messages.ReleaseAgentsEvent;
 import bgu.spl.mics.application.messages.SendAgentsEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.passiveObjects.Result;
 import bgu.spl.mics.application.passiveObjects.ResultAgentAvailable;
 import bgu.spl.mics.application.passiveObjects.Squad;
@@ -18,8 +19,9 @@ import java.util.List;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Moneypenny extends Subscriber {
-	Squad squad;
+	int currentTime;
 	int moneypennyId;
+	Squad squad;
 
 	public Moneypenny() {
 		super("Change_This_Name");
@@ -50,6 +52,9 @@ public class Moneypenny extends Subscriber {
 				complete(event, result);
 			});
 		}
+		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
+			currentTime = broadcast.getCurrentTime();
+		});
 	}
 
 	public int getMoneypennySerial() {
