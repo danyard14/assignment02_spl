@@ -1,7 +1,13 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import bgu.spl.mics.application.JsonParser;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import sun.awt.image.ImageWatched;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Diary {
 	private List<Report> reports;
-	private AtomicInteger total;
+	private int total;
 
 	private static class DiaryHolder {
 		private static Diary instance = new Diary();
@@ -24,11 +30,14 @@ public class Diary {
 	 * Retrieves the single instance of this class.
 	 */
 	public static Diary getInstance() {
+		DiaryHolder.instance.reports = new LinkedList<>();
 		return DiaryHolder.instance;
 	}
 
 	public List<Report> getReports() {
-		return reports;
+		synchronized (this) {
+			return reports;
+		}
 	}
 
 	/**
@@ -38,6 +47,7 @@ public class Diary {
 	public void addReport(Report reportToAdd){
 		synchronized (this) {//TODO: How to do atomic
 			reports.add(reportToAdd);
+			total++;
 		}
 	}
 
@@ -49,7 +59,14 @@ public class Diary {
 	 * This method is called by the main method in order to generate the output.
 	 */
 	public void printToFile(String filename){
-		//TODO: Implement this
+		try (FileWriter file = new FileWriter("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/output.json")) {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			String json = gson.toJson(this);
+			file.write(json);
+			System.out.println("Successfully Copied JSON Object to File...");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -57,13 +74,17 @@ public class Diary {
 	 * @return the total number of received missions (executed / aborted) be all the M-instances.
 	 */
 	public int getTotal(){
-			return (int) total.get();
+		synchronized (this) {
+			return total;
+		}
 	}
 
 	/**
 	 * Increments the total number of received missions by 1
 	 */
 	public void incrementTotal(){
-		total.getAndIncrement();//TODO check
+		synchronized (this) {
+			total++;
+		}
 	}
 }

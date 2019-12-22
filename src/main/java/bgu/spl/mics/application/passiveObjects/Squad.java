@@ -44,7 +44,7 @@ public class Squad {
      *               of the squad.
      */
     public void load(Agent[] agents) {
-        for (Agent agent : agents) { //TODO Atomic?
+        for (Agent agent : agents) {
             this.agents.put(agent.getSerialNumber(), agent);
         }
     }
@@ -83,12 +83,12 @@ public class Squad {
      * @return ‘false’ if an agent of serialNumber ‘serial’ is missing, and ‘true’ otherwise
      */
     public boolean getAgents(List<String> serials) {
-        for (String serial : serials) { //Check that all the agents exist in the squad
-            if (!this.agents.containsKey(serial)) {
-                return false;
-            }
-        }
         synchronized(this){
+            for (String serial : serials) { //Check that all the agents exist in the squad
+                if (!this.agents.containsKey(serial)) {
+                    return false;
+                }
+            }
             for (String serial : serials) { //Acquire all the agents
                 while (!agents.get(serial).isAvailable()) {
                     try {

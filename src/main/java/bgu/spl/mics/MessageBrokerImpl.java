@@ -52,11 +52,9 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, Subscriber m) {
-		synchronized (eventsMap.get(type.getName())) { //TODO: need notifyAll?
-			if (!eventsMap.get(type.getName()).contains(m)) //TODO:check if subscriber can subscribe twice
+		synchronized (eventsMap.get(type.getName())) {
+			if (!eventsMap.get(type.getName()).contains(m))
 				eventsMap.get(type.getName()).add(m);
-			else
-				System.out.println();
 		}
 	}
 
@@ -67,32 +65,32 @@ public class MessageBrokerImpl implements MessageBroker {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
-		String x = b.getClass().getName();
+	public void sendBroadcast(Broadcast b) {//TODO: possible to add synchronized
 		ArrayList<Subscriber> list = eventsMap.get(b.getClass().getName());
 		for (Subscriber subscriber : list) {
 			subscribersMap.get(subscriber).add(b);
 		}
 	}
 
-	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
 		if(!eventsMap.containsKey(e.getClass().getName())) {
 			return null;
 		}
-		ArrayList<Subscriber> list = eventsMap.get(e.getClass().getName());
-		Subscriber subscriber = list.remove(0);
-		list.add(subscriber);
-		subscribersMap.get(subscriber).add(e);
-		Future<T> future = new Future<>();
-		eventFutureMap.put(e, future);
-		return future;
+		synchronized (eventsMap.get(e.getClass().getName())) { //TODO: possible to make the arraylist list outside of the scope and do sync to the list object
+			ArrayList<Subscriber> list = eventsMap.get(e.getClass().getName());
+			Subscriber subscriber = list.remove(0);
+			list.add(subscriber);
+			subscribersMap.get(subscriber).add(e);
+			Future<T> future = new Future<>();
+			eventFutureMap.put(e, future);
+			return future;
+		}
 	}
 
 	@Override
 	public void register(Subscriber m) {
-		subscribersMap.put(m, new LinkedBlockingQueue<>());	//TODO:maybe another stracture
+		subscribersMap.put(m, new LinkedBlockingQueue<>());
 	}
 
 	@Override
@@ -110,7 +108,7 @@ public class MessageBrokerImpl implements MessageBroker {
 	}
 
 	@Override
-	public Message awaitMessage(Subscriber m) throws InterruptedException { //TODO: check the try N catch of this method
+	public Message awaitMessage(Subscriber m) throws InterruptedException {
 		if (subscribersMap.get(m) != null) {
 			return subscribersMap.get(m).take();
 		}

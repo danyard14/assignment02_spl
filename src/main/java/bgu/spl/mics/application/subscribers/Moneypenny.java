@@ -32,6 +32,7 @@ public class Moneypenny extends Subscriber {
 	public Moneypenny(int id) {
 		super("Moneypenny" + id);
 		currentTime = 0;
+		moneypennyId = id;
 		squad = Squad.getInstance();
 	}
 

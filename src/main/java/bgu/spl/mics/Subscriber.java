@@ -55,7 +55,7 @@ public abstract class Subscriber extends RunnableSubPub {
      *                 {@code type} are taken from this Subscriber message
      *                 queue.
      */
-    protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
+    protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {//TODO: maybe not sync
         if(!callbackMap.containsKey(type)) {
             callbackMap.put(type, callback);
             messageBrokerInstance.subscribeEvent(type, this);
@@ -130,5 +130,6 @@ public abstract class Subscriber extends RunnableSubPub {
                 e.printStackTrace();
             }
         }
+        messageBrokerInstance.unregister(this); //TODO: maybe something else
     }
 }

@@ -11,11 +11,15 @@ public class Agent {
     private String name;
     private boolean available;
 
-    // constructor //TODO: maybe delete
-    public Agent(String serialNumber, String name, boolean available) {
+    // constructor
+    public Agent() {
+        this.available = true;
+    }
+
+    public Agent(String serialNumber, String name) {
         this.serialNumber = serialNumber;
         this.name = name;
-        this.available = available;
+        this.available = true;
     }
 
     /**
@@ -66,15 +70,19 @@ public class Agent {
      * Acquires an agent.
      */
     public void acquire() {
-        available = false;
-        notifyAll();
+        synchronized (this) {
+            available = false;
+            notifyAll();
+        }
     }
 
     /**
      * Releases an agent.
      */
     public void release() {
-        available = true;
-        notifyAll();
+        synchronized (this) {
+            available = true;
+            notifyAll();
+        }
     }
 }

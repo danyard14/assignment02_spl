@@ -38,7 +38,7 @@ public class Intelligence extends Subscriber {
                     if (debug)
                         System.out.println("CurrentTime: " + missionInfo.getTimeIssued() + ", Intelligence: " + this.getName() + ", Sent MissionReceivedEvent");
                     MissionReceivedEvent missionReceivedEvent = new MissionReceivedEvent(missionInfo);
-                    MessageBrokerImpl.getInstance().sendEvent(missionReceivedEvent);
+                    getSimplePublisher().sendEvent(missionReceivedEvent);
                 }
             }
         });

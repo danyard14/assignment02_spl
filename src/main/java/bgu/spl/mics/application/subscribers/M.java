@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.subscribers;
 
 import bgu.spl.mics.Future;
+import bgu.spl.mics.MessageBroker;
+import bgu.spl.mics.MessageBrokerImpl;
 import bgu.spl.mics.Subscriber;
 import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.*;
@@ -47,6 +49,7 @@ public class M extends Subscriber {
 //					Thread.currentThread().interrupt();
 //				}
 //			}
+			MessageBroker x = MessageBrokerImpl.getInstance();//todo: delete
 			AgentAvailableResult agentsAvailableEventFutureResult = (AgentAvailableResult) agentsAvailableEventFuture.get();
 
 			if (agentsAvailableEventFutureResult.isSuccessful())
@@ -54,22 +57,27 @@ public class M extends Subscriber {
 				GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent(missionInfo.getGadget());
 				Future gadgetAvailableEventFuture = getSimplePublisher().sendEvent(gadgetAvailableEvent);
 				GadgetAvailableResult gadgetAvailableEventFutureResult = (GadgetAvailableResult) gadgetAvailableEventFuture.get();
-				if (gadgetAvailableEventFutureResult.isSuccessful() && currentTime <= missionInfo.getTimeExpired()) {
+				if (gadgetAvailableEventFutureResult.isSuccessful() && gadgetAvailableEventFutureResult.getqTime() <= missionInfo.getTimeExpired()) {
 					SendAgentsEvent sendAgentsEvent = new SendAgentsEvent(agents, missionInfo.getDuration());
 					Future sendAgentsEventFuture = getSimplePublisher().sendEvent(sendAgentsEvent);
-					Result sendAgentsEventFutureResult = (Result) sendAgentsEventFuture.get();
+					sendAgentsEventFuture.get();
 					Report report = createReport(missionInfo, agentsAvailableEventFutureResult, gadgetAvailableEventFutureResult);
 					diary.addReport(report);
 					result.setIsSuccessful(true);
 				}
 				else {
+					diary.incrementTotal();
 					ReleaseAgentsEvent releaseAgentsEvent = new ReleaseAgentsEvent(missionInfo.getSerialAgentsNumbers());
 					getSimplePublisher().sendEvent(releaseAgentsEvent);
 				}
 			}
-			diary.incrementTotal();
+			else {
+				diary.incrementTotal();
+			}
+			diary.printToFile("ss");//TODO: Delete
 			complete(event, result);
 		});
+
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
 			currentTime = broadcast.getCurrentTime();
 		});
