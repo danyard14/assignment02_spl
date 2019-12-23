@@ -1,5 +1,10 @@
 package bgu.spl.mics.application.passiveObjects;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,9 +23,10 @@ public class Inventory {
         private static Inventory instance = new Inventory();
     }
 
-    private Inventory(){
+    private Inventory() {
         gadgets = new LinkedList<String>();
     }
+
     /**
      * Retrieves the single instance of this class.
      */
@@ -63,6 +69,13 @@ public class Inventory {
      * This method is called by the main method in order to generate the output.
      */
     public void printToFile(String filename) {
-        //TODO: Implement this
+        try (FileWriter file = new FileWriter("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/outputInventory.json")) {//TODO change to string filename
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            String json = gson.toJson(this);
+            file.write(json);
+            System.out.println("Successfully Copied JSON Object to File...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

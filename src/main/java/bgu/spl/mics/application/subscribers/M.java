@@ -74,8 +74,9 @@ public class M extends Subscriber {
 			else {
 				diary.incrementTotal();
 			}
-			diary.printToFile("ss");//TODO: Delete
 			complete(event, result);
+			diary.printToFile("ss");
+			Inventory.getInstance().printToFile("ss");//todo delete
 		});
 
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
