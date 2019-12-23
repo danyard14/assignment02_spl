@@ -7,10 +7,6 @@ public class TickBroadcast implements Broadcast {
     private boolean isTerminated;
 
     //Constructors
-    public TickBroadcast() {
-        currentTime = 0;
-        isTerminated = false;
-    }
     public TickBroadcast(int currentTime, boolean isTerminated) {
         this.currentTime = currentTime;
         this.isTerminated = isTerminated;

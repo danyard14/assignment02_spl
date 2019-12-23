@@ -45,15 +45,19 @@ public class TimeService extends Publisher {
     public void run() {
             TimerTask repeatedTask = new TimerTask() {
                 public void run() {
-                    if(currentTime == duration)
+                    Broadcast b;
+                    if(currentTime == duration) {
+                        b = new TickBroadcast(currentTime, true);
                         timer.cancel(); //TODO: terminate all the threads
+                    }
+                    else
+                        b = new TickBroadcast(currentTime, false);
                     if(debug)
                         System.out.println("CurrentTime: " + currentTime);
-                    Broadcast b = new TickBroadcast(currentTime, false);
                     getSimplePublisher().sendBroadcast(b);
                     currentTime++;
                 }
             };
-            timer.scheduleAtFixedRate(repeatedTask, 1000, 1000); //TODO Change to 100 Milliseconds
+            timer.scheduleAtFixedRate(repeatedTask, 1000, 100); //TODO Change to 100 Milliseconds
     }
 }
