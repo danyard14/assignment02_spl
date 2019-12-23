@@ -44,6 +44,8 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, Subscriber m) {
+		if (!eventsMap.containsKey(type.getName()))
+			eventsMap.put(type.getName(), new ArrayList<>());
 		synchronized (eventsMap.get(type.getName())) { //TODO: need notifyAll?
 			if (!eventsMap.get(type.getName()).contains(m)) //TODO:check if sucsriber can subscribe twice
 				eventsMap.get(type.getName()).add(m);
@@ -52,6 +54,8 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, Subscriber m) {
+		if (!eventsMap.containsKey(type.getName()))
+			eventsMap.put(type.getName(), new ArrayList<>());
 		synchronized (eventsMap.get(type.getName())) {
 			if (!eventsMap.get(type.getName()).contains(m))
 				eventsMap.get(type.getName()).add(m);
