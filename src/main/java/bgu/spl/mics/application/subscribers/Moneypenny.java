@@ -42,6 +42,7 @@ public class Moneypenny extends Subscriber {
 			subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
 				List<String> agentsSerials = event.getAgents();
 				AgentAvailableResult result = new AgentAvailableResult(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
+				System.out.println(getName() + "Received AgentsAvailableEvent Message, isAvailable:" + result.isSuccessful());
 				complete(event, result);
 			});
 		}
@@ -61,6 +62,9 @@ public class Moneypenny extends Subscriber {
 		}
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
 			currentTime = broadcast.getCurrentTime();
+			if (broadcast.isTerminated()) {
+				terminate();
+			}
 		});
 	}
 

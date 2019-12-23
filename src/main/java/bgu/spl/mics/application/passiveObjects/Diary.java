@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * You can add ONLY private fields and methods to this class as you see fit.
  */
 public class Diary {
-	private List<Report> reports;
+	private List<Report> reports = new LinkedList<>();
 	private int total;
 
 	private static class DiaryHolder {
@@ -30,7 +30,7 @@ public class Diary {
 	 * Retrieves the single instance of this class.
 	 */
 	public static Diary getInstance() {
-		DiaryHolder.instance.reports = new LinkedList<>();
+//		DiaryHolder.instance.reports = new LinkedList<>();
 		return DiaryHolder.instance;
 	}
 
@@ -59,7 +59,7 @@ public class Diary {
 	 * This method is called by the main method in order to generate the output.
 	 */
 	public void printToFile(String filename){
-		try (FileWriter file = new FileWriter("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/output.json")) {
+		try (FileWriter file = new FileWriter("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/output.json")) {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			String json = gson.toJson(this);
 			file.write(json);

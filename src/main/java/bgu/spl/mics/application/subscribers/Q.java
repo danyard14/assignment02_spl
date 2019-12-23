@@ -33,10 +33,14 @@ public class Q extends Subscriber {
 		subscribeEvent(GadgetAvailableEvent.class, (GadgetAvailableEvent event) -> {
 			String gadget = event.getGadget();
 			GadgetAvailableResult result = new GadgetAvailableResult(currentTime, inventory.getItem(gadget));
+			System.out.println("Q received the gadget " + event.getGadget() + ", Q gadget isFind:" + result.isSuccessful() + " At time: " + currentTime);
 			complete(event, result);
 		});
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
 			currentTime = broadcast.getCurrentTime();
+			if (broadcast.isTerminated()) {
+				terminate();
+			}
 			if (debug)
 				System.out.println(this.getName() + " currentTime update to: " + currentTime);
 		});

@@ -61,6 +61,15 @@ public class MessageBrokerImpl implements MessageBroker {
 	@Override
 	public <T> void complete(Event<T> e, T result) {
 		Future future = eventFutureMap.get(e);
+		if (result == null)//todo delete
+			System.out.println("result is null");
+		if (future == null) {
+			System.out.println("event not exist: " + e.getClass().getName());
+			for (Map.Entry<Message, Future> eventType : eventFutureMap.entrySet()) {
+				System.out.println(eventType.getKey().getClass().getName());
+			}
+			System.out.println("future is null");
+		}
 		future.resolve(result);
 	}
 
@@ -74,16 +83,16 @@ public class MessageBrokerImpl implements MessageBroker {
 
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		if(!eventsMap.containsKey(e.getClass().getName())) {
+		if(!eventsMap.containsKey(e.getClass().getName())) {//todo maybe insert to sync
 			return null;
 		}
 		synchronized (eventsMap.get(e.getClass().getName())) { //TODO: possible to make the arraylist list outside of the scope and do sync to the list object
 			ArrayList<Subscriber> list = eventsMap.get(e.getClass().getName());
 			Subscriber subscriber = list.remove(0);
-			list.add(subscriber);
-			subscribersMap.get(subscriber).add(e);
 			Future<T> future = new Future<>();
 			eventFutureMap.put(e, future);
+			list.add(subscriber);
+			subscribersMap.get(subscriber).add(e);
 			return future;
 		}
 	}

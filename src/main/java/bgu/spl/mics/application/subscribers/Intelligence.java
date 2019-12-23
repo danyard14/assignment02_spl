@@ -33,12 +33,17 @@ public class Intelligence extends Subscriber {
         if (debug)
             System.out.println(this.getName() + " is initialize");
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
-            for (MissionInfo missionInfo: missionInfoList) {
-                if(missionInfo.getTimeIssued() == broadcast.getCurrentTime()) {
-                    if (debug)
-                        System.out.println("CurrentTime: " + missionInfo.getTimeIssued() + ", Intelligence: " + this.getName() + ", Sent MissionReceivedEvent");
-                    MissionReceivedEvent missionReceivedEvent = new MissionReceivedEvent(missionInfo);
-                    getSimplePublisher().sendEvent(missionReceivedEvent);
+            if (broadcast.isTerminated()) {
+                terminate();
+            }
+            else {
+                for (MissionInfo missionInfo: missionInfoList) {
+                    if(missionInfo.getTimeIssued() == broadcast.getCurrentTime()) {
+                        if (debug)
+                            System.out.println("CurrentTime: " + missionInfo.getTimeIssued() + ", Intelligence: " + this.getName() + ", Sent MissionReceivedEvent");
+                        MissionReceivedEvent missionReceivedEvent = new MissionReceivedEvent(missionInfo);
+                        getSimplePublisher().sendEvent(missionReceivedEvent);
+                    }
                 }
             }
         });

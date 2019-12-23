@@ -49,7 +49,7 @@ public class TimeService extends Publisher {
                         timer.cancel(); //TODO: terminate all the threads
                     if(debug)
                         System.out.println("CurrentTime: " + currentTime);
-                    Broadcast b = new TickBroadcast(currentTime);
+                    Broadcast b = new TickBroadcast(currentTime, false);
                     getSimplePublisher().sendBroadcast(b);
                     currentTime++;
                 }

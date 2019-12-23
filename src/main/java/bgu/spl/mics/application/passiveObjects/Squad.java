@@ -59,6 +59,7 @@ public class Squad {
                     this.agents.get(serial).release();
                 }
             }
+            notifyAll();
         }
     }
 

@@ -80,12 +80,15 @@ public class M extends Subscriber {
 
 		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
 			currentTime = broadcast.getCurrentTime();
+			if (broadcast.isTerminated()) {
+				terminate();
+			}
 		});
 	}
 
 	private Report createReport(MissionInfo missionInfo, AgentAvailableResult agentsAvailableEventFutureResult, GadgetAvailableResult gadgetAvailableEventFutureResult) {
 		Report report = new Report();
-		report.setMissionName(missionInfo.getMissionName());
+		report.setName(missionInfo.getMissionName());
 		report.setM(mId);
 		report.setMoneypenny(agentsAvailableEventFutureResult.getMoneypenny());
 		report.setAgentsSerialNumbers(missionInfo.getSerialAgentsNumbers());

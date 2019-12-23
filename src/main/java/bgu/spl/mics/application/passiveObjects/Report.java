@@ -9,7 +9,7 @@ import java.util.List;
  * You may add ONLY private fields and methods to this class.
  */
 public class Report {
-    private String missionName;
+    private String name;
     private int m;
     private int moneypenny;
     private List<String> agentsSerialNumbers;
@@ -22,15 +22,15 @@ public class Report {
     /**
      * Retrieves the mission name.
      */
-    public String getMissionName() {
-        return missionName;
+    public String getName() {
+        return name;
     }
 
     /**
      * Sets the mission name.
      */
-    public void setMissionName(String missionName) {
-        this.missionName = missionName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
