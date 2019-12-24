@@ -56,7 +56,7 @@ public class Diary {
      * This method is called by the main method in order to generate the output.
      */
     public void printToFile(String filename) {
-        try (FileWriter file = new FileWriter("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json")) {//TODO change to string filename
+        try (FileWriter file = new FileWriter(filename)) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             String json = gson.toJson(this);
             file.write(json);

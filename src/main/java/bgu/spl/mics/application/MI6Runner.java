@@ -1,5 +1,6 @@
 package bgu.spl.mics.application;
 
+import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.MissionInfo;
 import bgu.spl.mics.application.passiveObjects.Squad;
@@ -10,11 +11,16 @@ import bgu.spl.mics.application.subscribers.Moneypenny;
 import bgu.spl.mics.application.subscribers.Q;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import sun.jvm.hotspot.runtime.Threads;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This is the Main class of the application. You should parse the input file,
@@ -28,7 +34,7 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            JsonReader reader = new JsonReader(new FileReader("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/test2.json"));
+            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/test2.json"));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
@@ -37,39 +43,33 @@ public class MI6Runner {
             int numOfMoneyPennyObjects = parser.services.Moneypenny;
             JsonParser.MI6Class.IntelligencesArray[] intelligencesArray = parser.services.intelligence;
             int idCounter = 1;
+
+            int numOfThreads = intelligencesArray.length + numOfMObjects + numOfMoneyPennyObjects + 3; //3 for Q, TimeService and Main
+            ExecutorService threadPool = Executors.newFixedThreadPool(numOfThreads);
+
             for (JsonParser.MI6Class.IntelligencesArray missionsArray : intelligencesArray) {
                 List<MissionInfo> missionInfoList = convertFromJsonParserToMissionInfoList(missionsArray);
-                Intelligence intelligence = new Intelligence(idCounter, missionInfoList);
-                Thread intelligenceThread = new Thread(intelligence);
-                intelligenceThread.start();
+                threadPool.execute(new Intelligence(idCounter, missionInfoList));
                 idCounter++;
             }
             for (int i = 1; i <= numOfMObjects; i++) {
-                M m = new M(i);
-                Thread mThread = new Thread(m);
-                mThread.start();
+                threadPool.execute(new M(i));
             }
             for (int i = 1; i <= numOfMoneyPennyObjects; i++) {
-                Moneypenny moneypenny = new Moneypenny(i);
-                Thread moneypennyThread = new Thread(moneypenny);
-                moneypennyThread.start();
+                threadPool.execute(new Moneypenny(i));
             }
-            Q q = new Q(1);
-            Thread qThread = new Thread(q);
-            qThread.start();
-
-            Thread timeService = new Thread(new TimeService(appDuration));
-            timeService.start();
+            threadPool.execute(new Q(1));
+            threadPool.execute(new TimeService(appDuration));
+            threadPool.shutdown();
+            while(!threadPool.isTerminated()) {//TODO: it looks weird
+                //Thread.sleep(1000);
+            }
+            Diary.getInstance().printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json");
+            inventory.printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/inventoryOutput.json");
+            System.out.println("Done!");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-////        JsonObject rootObject = rootElement.getAsJsonObject();
-        System.out.println("Testing to see how far we came");
-////        JsonArray jsonarr = rootObject.getAsJsonArray("Inventory");
-//        Squad sq = new Squad();
-//        Inventory inv = new Inventory();
-//        inv.load(GadgetsToLoad);
-//        }
     }
 
     private static List<MissionInfo> convertFromJsonParserToMissionInfoList(JsonParser.MI6Class.IntelligencesArray missionsArray) {

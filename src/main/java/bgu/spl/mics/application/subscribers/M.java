@@ -42,8 +42,6 @@ public class M extends Subscriber {
 
             if (agentsAvailableEventFuture == null) {
                 diary.incrementTotal();
-                diary.printToFile("ss");//todo delete
-                Inventory.getInstance().printToFile("ss");
                 return;
             }
             AgentAvailableResult agentsAvailableEventFutureResult = (AgentAvailableResult) agentsAvailableEventFuture.get();
@@ -53,8 +51,6 @@ public class M extends Subscriber {
                 Future gadgetAvailableEventFuture = getSimplePublisher().sendEvent(gadgetAvailableEvent);
                 if (gadgetAvailableEventFuture == null) {
                     diary.incrementTotal();
-                    diary.printToFile("ss");//todo delete
-                    Inventory.getInstance().printToFile("ss");
                     return;
                 }
                 GadgetAvailableResult gadgetAvailableEventFutureResult = (GadgetAvailableResult) gadgetAvailableEventFuture.get();
@@ -63,8 +59,6 @@ public class M extends Subscriber {
                     Future sendAgentsEventFuture = getSimplePublisher().sendEvent(sendAgentsEvent);
                     if (sendAgentsEventFuture == null) {
                         diary.incrementTotal();
-                        diary.printToFile("ss");//todo delete
-                        Inventory.getInstance().printToFile("ss");//todo delete
                         return;
                     }
                     sendAgentsEventFuture.get();
@@ -80,8 +74,6 @@ public class M extends Subscriber {
                 diary.incrementTotal();
             }
             complete(event, result);
-            diary.printToFile("ss");//todo delete
-            Inventory.getInstance().printToFile("ss");//todo delete
         });
 
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
