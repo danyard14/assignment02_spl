@@ -11,14 +11,11 @@ import bgu.spl.mics.application.subscribers.Moneypenny;
 import bgu.spl.mics.application.subscribers.Q;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import sun.jvm.hotspot.runtime.Threads;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,7 +31,8 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/test1.json"));
+            ///users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/test1.json
+            JsonReader reader = new JsonReader(new FileReader("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[0]));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
@@ -59,16 +57,17 @@ public class MI6Runner {
             threadPool.execute(new Q(1));
             threadPool.execute(new TimeService(appDuration));
             threadPool.shutdown();
-            while(!threadPool.isTerminated()) {//TODO: it looks weird
+            while (!threadPool.isTerminated()) {
                 try {
-                    System.out.println("sleep");
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            Diary.getInstance().printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json");
-            inventory.printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/inventoryOutput.json");
+            ///users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json
+            Diary.getInstance().printToFile("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[2]);
+            //"inventoryOutput.json"
+            inventory.printToFile("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[1]);
             System.out.println("Done!");
         } catch (FileNotFoundException e) {
             e.printStackTrace();

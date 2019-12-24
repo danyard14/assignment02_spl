@@ -81,6 +81,7 @@ public class Future<T> {
             while (!isDone) {
                 try {
                     wait(TimeUnit.MILLISECONDS.convert(timeout, unit));
+                    break;
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

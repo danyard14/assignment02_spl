@@ -103,6 +103,14 @@ public class MessageBrokerImpl implements MessageBroker {
     @Override
     public void unregister(Subscriber m) {
         if (subscribersMap.containsKey(m)) {
+            for(Message message: subscribersMap.get(m)){
+                synchronized (eventFutureMap.get(message)) {
+                    if (eventFutureMap.get(message) != null) {
+                        eventFutureMap.get(message).resolve(new Result());
+
+                    }
+                }
+            }
             subscribersMap.remove(m);
             for (Map.Entry<String, ArrayList<Subscriber>> eventType : eventsMap.entrySet()) {
                 synchronized (eventType) {
