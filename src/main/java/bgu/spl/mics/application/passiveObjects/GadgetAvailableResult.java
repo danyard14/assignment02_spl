@@ -1,8 +1,6 @@
 package bgu.spl.mics.application.passiveObjects;
 
-import java.util.List;
-
-public class GadgetAvailableResult extends Result  {
+public class GadgetAvailableResult extends Result {
     private int qTime;
 
     public GadgetAvailableResult(int qTime, boolean isSuccessful) {
@@ -10,7 +8,7 @@ public class GadgetAvailableResult extends Result  {
         this.qTime = qTime;
     }
 
-    public int getqTime() {
+    public int getQTime() {
         return qTime;
     }
 }

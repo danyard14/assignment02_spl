@@ -1,7 +1,5 @@
 package bgu.spl.mics.application;
 
-import bgu.spl.mics.MessageBroker;
-import bgu.spl.mics.MessageBrokerImpl;
 import bgu.spl.mics.application.passiveObjects.Inventory;
 import bgu.spl.mics.application.passiveObjects.MissionInfo;
 import bgu.spl.mics.application.passiveObjects.Squad;
@@ -18,7 +16,8 @@ import java.io.FileReader;
 import java.util.LinkedList;
 import java.util.List;
 
-/** This is the Main class of the application. You should parse the input file,
+/**
+ * This is the Main class of the application. You should parse the input file,
  * create the different instances of the objects, and run the system.
  * In the end, you should output serialized objects.
  */
@@ -29,7 +28,7 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/test1.json"));
+            JsonReader reader = new JsonReader(new FileReader("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/test2.json"));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
@@ -38,13 +37,11 @@ public class MI6Runner {
             int numOfMoneyPennyObjects = parser.services.Moneypenny;
             JsonParser.MI6Class.IntelligencesArray[] intelligencesArray = parser.services.intelligence;
             int idCounter = 1;
-            for (JsonParser.MI6Class.IntelligencesArray missionsArray: intelligencesArray) { //TODO: run every intelligence
+            for (JsonParser.MI6Class.IntelligencesArray missionsArray : intelligencesArray) {
                 List<MissionInfo> missionInfoList = convertFromJsonParserToMissionInfoList(missionsArray);
                 Intelligence intelligence = new Intelligence(idCounter, missionInfoList);
-                //TODO Run the intelligence thread
                 Thread intelligenceThread = new Thread(intelligence);
                 intelligenceThread.start();
-                //TODO end creation of intelligence thread
                 idCounter++;
             }
             for (int i = 1; i <= numOfMObjects; i++) {
@@ -75,13 +72,13 @@ public class MI6Runner {
 //        }
     }
 
-    private static List<MissionInfo> convertFromJsonParserToMissionInfoList(JsonParser.MI6Class.IntelligencesArray missionsArray){
+    private static List<MissionInfo> convertFromJsonParserToMissionInfoList(JsonParser.MI6Class.IntelligencesArray missionsArray) {
         List<MissionInfo> missionInfoList = new LinkedList<>();
-        for (JsonParser.MI6Class.Missions mission :missionsArray.missions) {
+        for (JsonParser.MI6Class.Missions mission : missionsArray.missions) {
             MissionInfo missionInfo = new MissionInfo();
-            missionInfo.setMissionName(mission.missionName);
+            missionInfo.setMissionName(mission.name);
             List<String> serialAgentsNumbers = new LinkedList<>();
-            for (String serialAgentsNumber: mission.serialAgentsNumbers) {
+            for (String serialAgentsNumber : mission.serialAgentsNumbers) {
                 serialAgentsNumbers.add(serialAgentsNumber);
             }
             missionInfo.setSerialAgentsNumbers(serialAgentsNumbers);

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class AgentsAvailableEvent extends Event<AgentAvailableResult> {
     private List<String> agents;
-    private int moneypenny;//TODO TALK ABOUT IT
+    private int moneypenny;
     private List<String> agentsNames;
 
     public AgentsAvailableEvent(List<String> agents) {

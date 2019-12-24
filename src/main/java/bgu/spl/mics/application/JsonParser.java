@@ -16,7 +16,7 @@ public class JsonParser {
     public Agent[] squad;
 
 
-    public class MI6Class{
+    public class MI6Class {
         int M;
         int Moneypenny;
         IntelligencesArray[] intelligence;
@@ -30,7 +30,7 @@ public class JsonParser {
             public String[] serialAgentsNumbers;
             public int duration;
             public String gadget;
-            public String missionName;
+            public String name;
             public int timeExpired;
             public int timeIssued;
         }
@@ -45,21 +45,5 @@ public class JsonParser {
                 e.printStackTrace();
             }
         }
-/*
-        public void printToFile(Object toPrint) {
-            if(!fileName.Contains(".json"))
-                logM.log.severe("file name isn't from json type");
-            else {
-                File file = new File(fileName);
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
-                try{
-                    logM.log.info("File " + fileName + " Created");
-                    gson.toJson(toPrint, fw);
-                } catch (IOException e) {
-                    logM.log.severe("Print to file didn't work well");
-                }
-            }
-        }
- */
     }
 }

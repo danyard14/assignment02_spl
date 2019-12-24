@@ -33,7 +33,8 @@ public class AgentAvailableResult extends Result {
     public void setAgentsNames(List<String> agentsNames) {
         this.agentsNames = agentsNames;
     }
-    public void setAgentsSerials(List<String> serials){
+
+    public void setAgentsSerials(List<String> serials) {
         this.agentsSerials = serials;
     }
 }

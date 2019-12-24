@@ -3,14 +3,14 @@ package bgu.spl.mics.application.passiveObjects;
 public class Result {
     private boolean isSuccessful;
 
-    public Result(){
+    public Result() {
     }
 
     public Result(boolean isSuccessful) {
         this.isSuccessful = isSuccessful;
     }
 
-    public Result(Boolean isSuccessful){
+    public Result(Boolean isSuccessful) {
         this.isSuccessful = isSuccessful;
     }
 

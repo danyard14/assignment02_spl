@@ -8,7 +8,7 @@ public class SendAgentsEvent extends Event<Result> {
     private List<String> agents;
     private int duration;
 
-    public SendAgentsEvent(List<String> agents, int duration){
+    public SendAgentsEvent(List<String> agents, int duration) {
         this.agents = agents;
         this.duration = duration;
     }

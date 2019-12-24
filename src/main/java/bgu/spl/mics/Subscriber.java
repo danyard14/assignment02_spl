@@ -56,7 +56,7 @@ public abstract class Subscriber extends RunnableSubPub {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {//TODO: maybe not sync
-        if(!callbackMap.containsKey(type)) {
+        if (!callbackMap.containsKey(type)) {
             callbackMap.put(type, callback);
             messageBrokerInstance.subscribeEvent(type, this);
         }
@@ -84,7 +84,7 @@ public abstract class Subscriber extends RunnableSubPub {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        if(!callbackMap.containsKey(type)) {
+        if (!callbackMap.containsKey(type)) {
             callbackMap.put(type, callback);
             messageBrokerInstance.subscribeBroadcast(type, this);
         }
@@ -123,13 +123,13 @@ public abstract class Subscriber extends RunnableSubPub {
         initialize();
         while (!terminated) {
             try {
-               Message message = messageBrokerInstance.awaitMessage(this);
-               Callback callback = callbackMap.get(message.getClass()); //TODO: figure out if it gets inherited class or parent class.
-               callback.call(message);
+                Message message = messageBrokerInstance.awaitMessage(this);
+                Callback callback = callbackMap.get(message.getClass());
+                callback.call(message);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        messageBrokerInstance.unregister(this); //TODO: maybe something else
+        messageBrokerInstance.unregister(this);
     }
 }

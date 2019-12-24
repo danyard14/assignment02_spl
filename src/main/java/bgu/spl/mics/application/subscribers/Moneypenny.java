@@ -14,61 +14,59 @@ import java.util.List;
 /**
  * Only this type of Subscriber can access the squad.
  * There are several Moneypenny-instances - each of them holds a unique serial number that will later be printed on the report.
- *
+ * <p>
  * You can add private fields and public methods to this class.
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class Moneypenny extends Subscriber {
-	int currentTime;
-	int moneypennyId;
-	Squad squad;
+    int currentTime;
+    int moneypennyId;
+    Squad squad;
 
-	public Moneypenny() {
-		super("Moneypenny");
-		currentTime = 0;
-		squad = Squad.getInstance();
-	}
+    public Moneypenny() {
+        super("Moneypenny");
+        currentTime = 0;
+        squad = Squad.getInstance();
+    }
 
-	public Moneypenny(int id) {
-		super("Moneypenny" + id);
-		currentTime = 0;
-		moneypennyId = id;
-		squad = Squad.getInstance();
-	}
+    public Moneypenny(int id) {
+        super("Moneypenny" + id);
+        currentTime = 0;
+        moneypennyId = id;
+        squad = Squad.getInstance();
+    }
 
-	@Override
-	protected void initialize() {
-		if (moneypennyId % 2 == 0) {
-			subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
-				List<String> agentsSerials = event.getAgents();
-				AgentAvailableResult result = new AgentAvailableResult(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
-				System.out.println(getName() + "Received AgentsAvailableEvent Message, isAvailable:" + result.isSuccessful());
-				complete(event, result);
-			});
-		}
-		else {
-			subscribeEvent(SendAgentsEvent.class, (SendAgentsEvent event) -> {
-				List<String> agentsSerials = event.getAgents();
-				squad.sendAgents(agentsSerials, event.getDuration());
-				Result result = new Result(true);
-				complete(event, result);
-			});
-			subscribeEvent(ReleaseAgentsEvent.class, (ReleaseAgentsEvent event) -> {
-				List<String> agentsSerials = event.getSerialAgentsNumbers();
-				squad.releaseAgents(agentsSerials);
-				Result result = new Result(true);
-				complete(event, result);
-			});
-		}
-		subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
-			currentTime = broadcast.getCurrentTime();
-			if (broadcast.isTerminated()) {
-				terminate();
-			}
-		});
-	}
+    @Override
+    protected void initialize() {
+        if (moneypennyId % 2 == 0) {
+            subscribeEvent(AgentsAvailableEvent.class, (AgentsAvailableEvent event) -> {
+                List<String> agentsSerials = event.getAgents();
+                AgentAvailableResult result = new AgentAvailableResult(this.moneypennyId, agentsSerials, squad.getAgentsNames(agentsSerials), squad.getAgents(agentsSerials));
+                complete(event, result);
+            });
+        } else {
+            subscribeEvent(SendAgentsEvent.class, (SendAgentsEvent event) -> {
+                List<String> agentsSerials = event.getAgents();
+                squad.sendAgents(agentsSerials, event.getDuration());
+                Result result = new Result(true);
+                complete(event, result);
+            });
+            subscribeEvent(ReleaseAgentsEvent.class, (ReleaseAgentsEvent event) -> {
+                List<String> agentsSerials = event.getSerialAgentsNumbers();
+                squad.releaseAgents(agentsSerials);
+                Result result = new Result(true);
+                complete(event, result);
+            });
+        }
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
+            currentTime = broadcast.getCurrentTime();
+            if (broadcast.isTerminated()) {
+                terminate();
+            }
+        });
+    }
 
-	public int getMoneypennySerial() {
-		return moneypennyId;
-	}
+    public int getMoneypennySerial() {
+        return moneypennyId;
+    }
 }

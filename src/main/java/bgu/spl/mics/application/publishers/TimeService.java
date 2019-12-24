@@ -8,6 +8,7 @@ import bgu.spl.mics.application.messages.TickBroadcast;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
 /**
  * TimeService is the global system timer There is only one instance of this Publisher.
  * It keeps track of the amount of ticks passed since initialization and notifies
@@ -25,12 +26,13 @@ public class TimeService extends Publisher {
     private Timer timer;
 
     public TimeService() {
-        super("WorldClock");//TODO: change
+        super("WorldClock");
         currentTime = 0;
         timer = new Timer();
     }
+
     public TimeService(int duration) {
-        super("WorldClock");//TODO: change
+        super("WorldClock");
         currentTime = 0;
         this.duration = duration;
         timer = new Timer();
@@ -43,21 +45,19 @@ public class TimeService extends Publisher {
 
     @Override
     public void run() {
-            TimerTask repeatedTask = new TimerTask() {
-                public void run() {
-                    Broadcast b;
-                    if(currentTime == duration) {
-                        b = new TickBroadcast(currentTime, true);
-                        timer.cancel(); //TODO: terminate all the threads
-                    }
-                    else
-                        b = new TickBroadcast(currentTime, false);
-                    if(debug)
-                        System.out.println("CurrentTime: " + currentTime);
+        TimerTask repeatedTask = new TimerTask() {
+            public void run() {
+                Broadcast b;
+                if (currentTime == duration) {
+                    b = new TickBroadcast(currentTime, true);
+                    timer.cancel();
+                } else
+                    b = new TickBroadcast(currentTime, false);
+                if (debug)
                     getSimplePublisher().sendBroadcast(b);
-                    currentTime++;
-                }
-            };
-            timer.scheduleAtFixedRate(repeatedTask, 1000, 100); //TODO Change to 100 Milliseconds
+                currentTime++;
+            }
+        };
+        timer.scheduleAtFixedRate(repeatedTask, 1000, 100);
     }
 }

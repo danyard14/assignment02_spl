@@ -13,11 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * You may add ONLY private fields and methods to this class.
  */
 public class Squad {
-
-    //TODO: check: 1.maybe change map to synchronized map
-    //				2. maybe initialize map in the declaration.
-
-
     private Map<String, Agent> agents;
 
     private static class SquadHolder {
@@ -69,12 +64,12 @@ public class Squad {
      * @param time time ticks to sleep
      */
     public void sendAgents(List<String> serials, int time) {
-		try {
-            Thread.currentThread().sleep(time);
+        try {
+            Thread.currentThread().sleep(time * 100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-		releaseAgents(serials);
+        releaseAgents(serials);
     }
 
     /**
@@ -84,7 +79,7 @@ public class Squad {
      * @return ‘false’ if an agent of serialNumber ‘serial’ is missing, and ‘true’ otherwise
      */
     public boolean getAgents(List<String> serials) {
-        synchronized(this){
+        synchronized (this) {
             for (String serial : serials) { //Check that all the agents exist in the squad
                 if (!this.agents.containsKey(serial)) {
                     return false;
