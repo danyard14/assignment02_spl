@@ -34,7 +34,7 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/test2.json"));
+            JsonReader reader = new JsonReader(new FileReader("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/test1.json"));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
@@ -43,10 +43,8 @@ public class MI6Runner {
             int numOfMoneyPennyObjects = parser.services.Moneypenny;
             JsonParser.MI6Class.IntelligencesArray[] intelligencesArray = parser.services.intelligence;
             int idCounter = 1;
-
             int numOfThreads = intelligencesArray.length + numOfMObjects + numOfMoneyPennyObjects + 3; //3 for Q, TimeService and Main
             ExecutorService threadPool = Executors.newFixedThreadPool(numOfThreads);
-
             for (JsonParser.MI6Class.IntelligencesArray missionsArray : intelligencesArray) {
                 List<MissionInfo> missionInfoList = convertFromJsonParserToMissionInfoList(missionsArray);
                 threadPool.execute(new Intelligence(idCounter, missionInfoList));
@@ -62,7 +60,12 @@ public class MI6Runner {
             threadPool.execute(new TimeService(appDuration));
             threadPool.shutdown();
             while(!threadPool.isTerminated()) {//TODO: it looks weird
-                //Thread.sleep(1000);
+                try {
+                    System.out.println("sleep");
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             Diary.getInstance().printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json");
             inventory.printToFile("/Users/nadavshaked/assignment2_spl/src/main/java/bgu/spl/mics/application/inventoryOutput.json");
