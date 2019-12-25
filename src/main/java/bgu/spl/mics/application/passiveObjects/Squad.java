@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Passive data-object representing a information about an agent in MI6.
@@ -14,9 +13,30 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Squad {
     private Map<String, Agent> agents;
+    private boolean shouldTerminate;
+
+    public void releaseAll() {
+        synchronized (this) {
+            for (Agent agent : agents.values()) {
+                agent.release();
+            }
+            notifyAll();
+        }
+    }
 
     private static class SquadHolder {
         private static Squad instance = new Squad();
+    }
+
+    public boolean shouldTerminate() {
+        return shouldTerminate;
+    }
+
+    public void setShouldTerminate(boolean shouldTerminate) {
+        synchronized (this) {
+            this.shouldTerminate = shouldTerminate;
+            notifyAll();
+        }
     }
 
     // initialization
@@ -86,14 +106,16 @@ public class Squad {
                 }
             }
             for (String serial : serials) { //Acquire all the agents
-                while (!agents.get(serial).isAvailable()) {
+                while (!agents.get(serial).isAvailable() & !shouldTerminate) {
                     try {
                         wait();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
-                this.agents.get(serial).acquire();
+                if (!shouldTerminate) {
+                    this.agents.get(serial).acquire();
+                }
             }
         }
         return true;

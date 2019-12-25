@@ -31,16 +31,14 @@ public class ExampleMessageSender extends Subscriber {
         } else {
             Future<String> futureObject = getSimplePublisher().sendEvent(new ExampleEvent(getName()));
             if (futureObject != null) {
-            	String resolved = futureObject.get(100, TimeUnit.MILLISECONDS);
-            	if (resolved != null) {
-            		System.out.println("Completed processing the event, its result is \"" + resolved + "\" - success");
-            	}
-            	else {
-                	System.out.println("Time has elapsed, no subscriber has resolved the event - terminating");
+                String resolved = futureObject.get(100, TimeUnit.MILLISECONDS);
+                if (resolved != null) {
+                    System.out.println("Completed processing the event, its result is \"" + resolved + "\" - success");
+                } else {
+                    System.out.println("Time has elapsed, no subscriber has resolved the event - terminating");
                 }
-            }
-            else {
-            	System.out.println("No Subscriber has registered to handle ExampleEvent events! The event cannot be processed");
+            } else {
+                System.out.println("No Subscriber has registered to handle ExampleEvent events! The event cannot be processed");
             }
             terminate();
         }

@@ -16,7 +16,7 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class MessageBrokerImpl implements MessageBroker {
     private Map<Subscriber, LinkedBlockingQueue<Message>> subscribersMap;
-    private Map<String, ArrayList<Subscriber>> eventsMap;
+    private Map<String, LinkedBlockingQueue<Subscriber>> eventsMap;
     private Map<Message, Future> eventFutureMap;
 
     private static class MessageBrokerHolder {
@@ -33,33 +33,39 @@ public class MessageBrokerImpl implements MessageBroker {
     private MessageBrokerImpl() {
         subscribersMap = new ConcurrentHashMap<>();
         eventsMap = new ConcurrentHashMap<>();
-        eventsMap.put(AgentsAvailableEvent.class.getName(), new ArrayList<>());
-        eventsMap.put(Event.class.getName(), new ArrayList<>());
-        eventsMap.put(GadgetAvailableEvent.class.getName(), new ArrayList<>());
-        eventsMap.put(MissionReceivedEvent.class.getName(), new ArrayList<>());
-        eventsMap.put(ReleaseAgentsEvent.class.getName(), new ArrayList<>());
-        eventsMap.put(SendAgentsEvent.class.getName(), new ArrayList<>());
-        eventsMap.put(TickBroadcast.class.getName(), new ArrayList<>());
+        eventsMap.put(AgentsAvailableEvent.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(Event.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(GadgetAvailableEvent.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(MissionReceivedEvent.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(ReleaseAgentsEvent.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(SendAgentsEvent.class.getName(), new LinkedBlockingQueue<>());
+        eventsMap.put(TickBroadcast.class.getName(), new LinkedBlockingQueue<>());
         eventFutureMap = new ConcurrentHashMap<>();
     }
 
     @Override
     public <T> void subscribeEvent(Class<? extends Event<T>> type, Subscriber m) {
         if (!eventsMap.containsKey(type.getName()))
-            eventsMap.put(type.getName(), new ArrayList<>());
+            eventsMap.put(type.getName(), new LinkedBlockingQueue<>());
         synchronized (eventsMap.get(type.getName())) {
             if (!eventsMap.get(type.getName()).contains(m))
-                eventsMap.get(type.getName()).add(m);
+                try {
+                    eventsMap.get(type.getName()).put(m);
+                } catch (Exception e) {
+                }
         }
     }
 
     @Override
     public void subscribeBroadcast(Class<? extends Broadcast> type, Subscriber m) {
         if (!eventsMap.containsKey(type.getName()))
-            eventsMap.put(type.getName(), new ArrayList<>());
+            eventsMap.put(type.getName(), new LinkedBlockingQueue<>());
         synchronized (eventsMap.get(type.getName())) {
             if (!eventsMap.get(type.getName()).contains(m))
-                eventsMap.get(type.getName()).add(m);
+                try {
+                    eventsMap.get(type.getName()).put(m);
+                } catch (Exception e) {
+                }
         }
     }
 
@@ -71,9 +77,12 @@ public class MessageBrokerImpl implements MessageBroker {
 
     @Override
     public void sendBroadcast(Broadcast b) {
-        ArrayList<Subscriber> list = eventsMap.get(b.getClass().getName());
+        LinkedBlockingQueue<Subscriber> list = eventsMap.get(b.getClass().getName());
         for (Subscriber subscriber : list) {
-            subscribersMap.get(subscriber).add(b);
+            try {
+                subscribersMap.get(subscriber).put(b);
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -83,14 +92,20 @@ public class MessageBrokerImpl implements MessageBroker {
             return null;
         }
         synchronized (eventsMap.get(e.getClass().getName())) {
-            ArrayList<Subscriber> list = eventsMap.get(e.getClass().getName());
+            LinkedBlockingQueue<Subscriber> list = eventsMap.get(e.getClass().getName());
             if (eventsMap.get(e.getClass().getName()).isEmpty())
                 return null;
-            Subscriber subscriber = list.remove(0);
             Future<T> future = new Future<>();
             eventFutureMap.put(e, future);
-            list.add(subscriber);
-            subscribersMap.get(subscriber).add(e);
+            try {
+                Subscriber subscriber = list.take();
+                list.add(subscriber);
+                if (subscribersMap.containsKey(subscriber))
+                    subscribersMap.get(subscriber).add(e);
+            } catch (Exception ex) {
+            }
+
+
             return future;
         }
     }
@@ -103,16 +118,17 @@ public class MessageBrokerImpl implements MessageBroker {
     @Override
     public void unregister(Subscriber m) {
         if (subscribersMap.containsKey(m)) {
-            for(Message message: subscribersMap.get(m)){
+            for (Message message : subscribersMap.get(m)) {
                 synchronized (eventFutureMap.get(message)) {
                     if (eventFutureMap.get(message) != null) {
                         eventFutureMap.get(message).resolve(new Result());
-
                     }
                 }
             }
-            subscribersMap.remove(m);
-            for (Map.Entry<String, ArrayList<Subscriber>> eventType : eventsMap.entrySet()) {
+            synchronized (m) {
+                subscribersMap.remove(m);
+            }
+            for (Map.Entry<String, LinkedBlockingQueue<Subscriber>> eventType : eventsMap.entrySet()) {
                 synchronized (eventType) {
                     if (eventType.getValue().contains(m)) {
                         eventType.getValue().remove(m);

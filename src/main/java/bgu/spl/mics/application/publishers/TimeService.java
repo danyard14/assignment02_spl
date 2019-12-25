@@ -19,8 +19,6 @@ import java.util.TimerTask;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class TimeService extends Publisher {
-    private final boolean debug = true;
-
     private int currentTime;
     private int duration;
     private Timer timer;
@@ -40,7 +38,6 @@ public class TimeService extends Publisher {
 
     @Override
     protected void initialize() {
-        // TODO Implement this
     }
 
     @Override
@@ -48,13 +45,14 @@ public class TimeService extends Publisher {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
                 Broadcast b;
+                System.out.println(currentTime);
                 if (currentTime == duration) {
                     b = new TickBroadcast(currentTime, true);
                     timer.cancel();
-                } else
+                } else {
                     b = new TickBroadcast(currentTime, false);
-                if (debug)
-                    getSimplePublisher().sendBroadcast(b);
+                }
+                getSimplePublisher().sendBroadcast(b);
                 currentTime++;
             }
         };

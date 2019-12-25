@@ -9,6 +9,8 @@ public class AgentsAvailableEvent extends Event<AgentAvailableResult> {
     private int moneypenny;
     private List<String> agentsNames;
 
+    public AgentsAvailableEvent() { }
+
     public AgentsAvailableEvent(List<String> agents) {
         this.agents = agents;
     }

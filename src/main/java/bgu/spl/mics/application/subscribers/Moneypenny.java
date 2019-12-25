@@ -61,6 +61,8 @@ public class Moneypenny extends Subscriber {
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast broadcast) -> {
             currentTime = broadcast.getCurrentTime();
             if (broadcast.isTerminated()) {
+                squad.setShouldTerminate(true);
+                squad.releaseAll();
                 terminate();
             }
         });

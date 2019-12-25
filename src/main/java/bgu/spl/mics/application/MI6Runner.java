@@ -31,8 +31,7 @@ public class MI6Runner {
         Squad squad = Squad.getInstance();
 
         try {
-            ///users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/test1.json
-            JsonReader reader = new JsonReader(new FileReader("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[0]));
+            JsonReader reader = new JsonReader(new FileReader(args[0]));
             JsonParser parser = gson.fromJson(reader, JsonParser.class);
             int appDuration = parser.services.time;
             inventory.load(parser.inventory);
@@ -64,11 +63,8 @@ public class MI6Runner {
                     e.printStackTrace();
                 }
             }
-            ///users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/diaryOutput.json
-            Diary.getInstance().printToFile("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[2]);
-            //"inventoryOutput.json"
-            inventory.printToFile("/users/studs/bsc/2020/nadav0/CLionProjects/assignment2_spl/src/main/java/bgu/spl/mics/application/" + args[1]);
-            System.out.println("Done!");
+            Diary.getInstance().printToFile(args[1]);
+            inventory.printToFile(args[2]);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

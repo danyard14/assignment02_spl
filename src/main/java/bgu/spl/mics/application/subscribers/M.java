@@ -8,6 +8,7 @@ import bgu.spl.mics.application.messages.*;
 import bgu.spl.mics.application.passiveObjects.*;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * M handles ReadyEvent - fills a report and sends agents to mission.
@@ -44,7 +45,18 @@ public class M extends Subscriber {
                 diary.incrementTotal();
                 return;
             }
-            AgentAvailableResult agentsAvailableEventFutureResult = (AgentAvailableResult) agentsAvailableEventFuture.get();
+
+            Result agentsAvailableEventFutureResult = (Result) agentsAvailableEventFuture.get(100*(missionInfo.getTimeExpired()-currentTime), TimeUnit.MILLISECONDS);
+            if (agentsAvailableEventFutureResult == null) {
+                diary.incrementTotal();
+                return;
+            }
+
+
+            if(!(agentsAvailableEventFutureResult instanceof AgentAvailableResult)){
+                diary.incrementTotal();
+                return;
+            }
 
             if (agentsAvailableEventFutureResult.isSuccessful()) {
                 GadgetAvailableEvent gadgetAvailableEvent = new GadgetAvailableEvent(missionInfo.getGadget());
@@ -53,16 +65,25 @@ public class M extends Subscriber {
                     diary.incrementTotal();
                     return;
                 }
-                GadgetAvailableResult gadgetAvailableEventFutureResult = (GadgetAvailableResult) gadgetAvailableEventFuture.get();
-                if (gadgetAvailableEventFutureResult.isSuccessful() && gadgetAvailableEventFutureResult.getQTime() <= missionInfo.getTimeExpired()) {
+                Result gadgetAvailableEventFutureResult = (Result) gadgetAvailableEventFuture.get(100*(missionInfo.getTimeExpired()-currentTime), TimeUnit.MILLISECONDS);
+                if (gadgetAvailableEventFutureResult == null) {
+                    diary.incrementTotal();
+                    return;
+                }
+
+                if(!(gadgetAvailableEventFutureResult instanceof GadgetAvailableResult)){
+                    diary.incrementTotal();
+                    return;
+                }
+                if (gadgetAvailableEventFutureResult.isSuccessful() && ((GadgetAvailableResult) gadgetAvailableEventFutureResult).getQTime() <= missionInfo.getTimeExpired()) {
                     SendAgentsEvent sendAgentsEvent = new SendAgentsEvent(agents, missionInfo.getDuration());
                     Future sendAgentsEventFuture = getSimplePublisher().sendEvent(sendAgentsEvent);
                     if (sendAgentsEventFuture == null) {
                         diary.incrementTotal();
                         return;
                     }
-                    sendAgentsEventFuture.get();
-                    Report report = createReport(missionInfo, agentsAvailableEventFutureResult, gadgetAvailableEventFutureResult);
+                    //sendAgentsEventFuture.get();
+                    Report report = createReport(missionInfo, (AgentAvailableResult) agentsAvailableEventFutureResult, (GadgetAvailableResult) gadgetAvailableEventFutureResult);
                     diary.addReport(report);
                     result.setIsSuccessful(true);
                 } else {

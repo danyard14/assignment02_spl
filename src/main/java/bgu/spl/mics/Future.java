@@ -21,6 +21,7 @@ public class Future<T> {
      */
     public Future() {
         isDone = false;
+        result = null;
     }
 
     /**
